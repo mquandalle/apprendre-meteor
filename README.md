@@ -1,4 +1,4 @@
-# Apprendre Meteor (alpha-2)
+# Apprendre Meteor (alpha-2) [![Build Status](https://www.gitbook.io/button/status/book/mquandalle/apprendre-meteor)](https://www.gitbook.io/book/mquandalle/apprendre-meteor/activity)
 
 > **Attention :** La rédaction de ce cours n'est pas terminée.
 
