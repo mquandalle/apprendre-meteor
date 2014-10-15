@@ -1,5 +1,3 @@
-\part{Apprendre les bases de Meteor}
-
 # Installation et prise en main
 
 ## Installation
@@ -37,34 +35,31 @@ Lors de l'installation vous avez téléchargé un utilitaire `meteor`. Cet utili
 
 *Comment ouvrir l'invite de commande ?*
 
----------   ----------------------------------------------------------------------
-Windows     Menu "Démarrer" > Exécuter \
-            puis écrire `cmd.exe` et valider
+| Plateforme | Méthode  |
+| -- | -- |
+| Windows | Menu Démarrer > Exécuter. Écrire `cmd.exe` et valider |
+| MacOS | Ouvrir l'application « Terminal » située dans Utilitaires > Applications |
+| Linux |  Votre distribution propose probablement une application « Terminal » <br> Sur *ubuntu*, vous pouvez utiliser le raccourci `CTRL` + `ALT` + `T` |
 
-MacOS       Ouvrir l'application "Terminal" située dans Utilitaires > Applications
-
-Linux       Votre distribution propose probablement une application "Terminal" \
-            Sur *ubuntu*, vous pouvez utiliser le raccourci `CTRL` + `ALT` + `T`
----------   ----------------------------------------------------------------------
-
-Vous pouvez d’ores et déjà exécuter la commande `meteor --version` pour vérifier que l'installation s'est bien passée. À l'heure où j'écris ces lignes, Meteor est en version `0.7.0`.
+Vous pouvez d’ores et déjà exécuter la commande `meteor --version` pour vérifier que l'installation s'est bien passée. À l'heure où j'écris ces lignes, Meteor est en version `1.0.0`.
 
 ## Créons notre première application
 
-Maintenant que Meteor est installé, nous pouvons créer notre première application. Pour ce faire, exécutez en ligne de commande
+Maintenant que Meteor est installé, nous pouvons créer notre première application. Pour ce faire, exécutez les commandes suivantes :
 
 ```bash
+$ cd /tmp/
 $ meteor create myapp
 ```
 
-où `myapp` est le nom que vous avez choisi pour votre application. Meteor crée alors un répertoire "myapp" dans lequel vous pouvez vous déplacer et lancer l'application :
+où `myapp` est le nom que vous avez choisi de donner à votre application. Meteor crée alors un répertoire « myapp » dans lequel vous pouvez vous déplacer et lancer l'application qui s'y trouve :
 
 ```bash
 $ cd myapp
 $ meteor run
 ```
 
-> Si aucune action n'est spécifiée, l'action par défaut est `run`, vous pouvez donc écrire indifféremment `meteor run` ou plus simplement `meteor` pour démarrer l'application Meteor du répertoire courant.
+> Si aucune action n'est spécifiée, l'action par défaut est `run`, vous pouvez donc écrire indifféremment `meteor run` ou plus simplement `meteor` pour démarrer l'application Meteor située dans répertoire courant.
 
 Cette commande lance un serveur local pour le développement. Vous pouvez vous y connecter à l'adresse <http://localhost:3000> dans votre navigateur. Vous devriez alors voir apparaître l'application "Hello world" créée par défaut :
 
@@ -78,48 +73,46 @@ Laissons de côté les fichiers HTML et CSS et concentrons-nous sur le fichier J
 console.log("Hello world");
 ```
 
-Ce code se contente simplement d'afficher le texte `Hello world` dans la console. Pour ouvrir la console du navigateur :
+<http://meteorpad.com/pad/q8KwqjiieqAHNuXdu>
+
+Ce code se contente simplement d'afficher le texte `Hello world` dans la console.
 
 *Comment ouvrir la console du navigateur ?*
 
-------------------   ------------------------------------------------
-Firefox              **F12** \
-                     ou via le menu Développement web > Console Web
+| Navigateur | Méthode  |
+| -- | -- |
+| Firefox | `F12` <br> ou via le menu Développement web > Console Web |
+| Google Chrome | `CTRL` + `SHIFT` + `J` <br> ou via le menu Outils > Console JavaScript |
+| Internet Explorer |  `F12` <br> ou via le menu Outils > Outils de développement |
 
-Google Chrome        **Ctrl+Shift+J** \
-                     ou via le menu Outils > Console JavaScript
 
-Internet explorer    **F12** \
-                     ou via le menu Outils > Outils de développement
-------------------   ------------------------------------------------
-
-Mais si vous regardez la console du serveur (c'est à dire l'invite de commande dans lequel vous avez lancé l'utilitaire `meteor`), vous voyez que "Hello world" s'affiche également. Autrement dit, par défaut le fichier `myapp.js` est exécuté à la fois sur le client et sur le serveur, ceci grâce à l'utilisation du même langage sur les deux environnements.
+Vous avez peut-être remarqué que le texte « Hello world » s'affiche également dans la console du serveur (c'est à dire dans l'invite de commande dans lequel vous avez lancé l'utilitaire `meteor`). Autrement dit, par défaut le fichier `myapp.js` est exécuté à la fois sur le client et sur le serveur, ceci notamment grâce à l'utilisation du même langage sur les deux environnements.
 
 ![Le log sort aussi du coté serveur](img/consoleserver.png)
 
-Naturellement il peut être nécessaire de restreindre l’exécution d'une portion de code au serveur ou au client uniquement. Les variables booléennes `Meteor.isClient` et `Meteor.isServer` vous le permettent :
+Évidemment, il est parfois nécessaire de restreindre l’exécution d'une portion de code au serveur ou au client uniquement. Les variables booléennes `Meteor.isClient` et `Meteor.isServer` vous le permettent :
 
 ```javascript
 // Exécuté à la fois sur le client et sur le serveur
 console.log("Hello world");
 
 if (Meteor.isClient) {
-  console.log("I'm the the client");
+  console.log("I'm the client");
 }
 
 if (Meteor.isServer) {
-  console.log("I'm the the server");
+  console.log("I'm the server");
 }
 ```
 
-[TODO] Capture d'écran ![Utilisation des variables `Meteor.isClient` et `Meteor.isServer`]
+<http://meteorpad.com/pad/Np6JBkWnYHM8vHqaY>
 
-> Vous avez probablement remarqué que l'application est automatiquement rechargée à chaque modification du code source. Cette fonctionnalité s'appelle le *Hode Code Push* et vous évite d'avoir à appuyer sur le bouton "Recharger la page" du navigateur pendant le développement de votre application.
+> Vous avez probablement remarqué que l'application est automatiquement rechargée à chaque modification du code source. Cette fonctionnalité s'appelle le *Hot Code Push* et vous évite d'avoir à appuyer sur le bouton "Recharger la page" du navigateur pendant le développement de votre application.
 > En fait, la page du navigateur n'est même pas rechargée. Au lieu de cela, le nouveau code est injecté dans la page courante sans interrompre la navigation d'un utilisateur connecté. Ce mécanisme peut également être utilisé en production pour le déploiement pendant que des utilisateurs sont connectés à l'application. Nous l'étudierons plus en détail dans le chapitre 4 consacré au déploiement.
 
 Nous n'avons plus besoin de l'application `myapp` que nous venons de créer. Pour arrêter le serveur utilisez le raccourci `CTRL` + `C` dans l'invite de commandes. Vous pouvez ensuite supprimer le répertoire `myapp` contenant l'ensemble des fichiers utilisés par l'application. Une fois ce répertoire supprimé il ne restera plus aucune trace de l'application sur votre ordinateur.
 
-En plus de l'utilitaire en ligne de commande que nous avons utilisé pour créer notre application, Meteor propose des applications d'exemple que nous allons découvrir, comprendre et enrichir de quelques fonctionnalités au fil de ce cours. Pour garder votre arborescence organisée, il est préférable de placer toutes ces applications dans un même répertoire de travail, par exemple sur Linux/MacOS :
+En plus de l'utilitaire en ligne de commande que nous avons utilisé pour créer notre application, Meteor propose des applications d'exemple que nous allons découvrir, comprendre et enrichir de quelques fonctionnalités au fil de ce cours. Pour garder votre arborescence organisée, il est préférable de placer toutes ces applications dans un même répertoire de travail, par exemple avec Linux ou MacOS :
 
 ```sh
 $ mkdir ~/meteor-apps/
@@ -138,7 +131,7 @@ Ouvrez maintenant l'application dans une seconde fenêtre de navigateur de mani�
 
 > Si votre ordinateur est connecté sur un réseau local, vous pouvez aussi vous connecter depuis un autre poste du réseau http://ip-locale-de-votre-ordinateur:3000. L'IP locale peut-être récupérée avec un `ifconfig` (ou `ipconfig` pour windows) dans l'invite de commande.
 
-Au cours des prochains chapitres nous allons étudier le fonctionnement de cette application en abordant les notions de `Template`, de `Session` et de `Collection`. Trois objects essentiels que vous utiliserez ensuite dans chacune de vos applications Meteor !
+Au cours des prochains chapitres nous allons étudier le fonctionnement de cette application en abordant les notions de `Template`, de `Session` et de `Collection`. Trois objets essentiels que vous utiliserez ensuite dans chacune de vos applications Meteor !
 
 Mais avant d'entrer dans le vif du sujet je vous propose de survoler le code source de l'application leaderboard. Comme tout à l'heure nous disposons de trois fichiers :
 
@@ -148,19 +141,25 @@ Mais avant d'entrer dans le vif du sujet je vous propose de survoler le code sou
 
 > Notez qu'il est évidemment possible de séparer le code source de votre application entre plusieurs fichiers HTML, CSS et JavaScript. Un chapitre *excursus* est consacré à l'organisation du code plus tard dans ce cours.
 
-## Questions
+---
 
-1. Quelle commande utilise t-on pour créer une nouvelle application Meteor ?
-    - `meteor new`
-    - `meteor create`
-    - `meteor run`
-\
-2. Quelle condition utiliser pour exécuter du code sur le serveur uniquement ?
-    - `if (server)`
-    - `if (Meteor.is_server)`
-    - `if (Meteor.isServer)`
-\
-3. Qu'est que le *Hot Code Push* ?
-    - Un moyen de pousser le code le plus important en premier
-    - Un moyen pour envoyer les mises à jours aux clients connectés
-    - Un moyen d'éviter de définir quels fichiers doivent être envoyés aux clients
+Quelle commande utilise t-on pour créer une nouvelle application Meteor ?
+- ( ) `meteor new`
+- (x) `meteor create`
+- ( ) `meteor run`
+
+Quelle condition utiliser pour exécuter du code sur le serveur uniquement ?
+- ( ) `if (server)`
+- ( ) `if (Meteor.is_server)`
+- (x) `if (Meteor.isServer)`
+
+> Toutes les fonctions fournies par Meteor suivent la convention de nommage CamelCase.
+
+Qu'est que le *Hot Code Push* ?
+- ( ) Un moyen de pousser le code le plus important en premier
+- (x) Un moyen pour envoyer les mises à jours aux clients connectés
+- ( ) Un moyen d'éviter de définir quels fichiers doivent être envoyés aux clients
+
+> Nous avons vu le Hot Code Push à l'œuvre lorsque nous n'avons pas eu à recharger notre page pour y voir les modifications apportées.
+
+---

@@ -1,0 +1,7 @@
+{
+    "plugins": [
+        "quizzes",
+        "meteorpad"
+    ],
+    "pluginsConfig": {}
+}

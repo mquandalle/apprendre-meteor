@@ -1,14 +1,14 @@
 # Les Templates
 
-Comme la plupart des frameworks web, Meteor propose un système de templates (ou vues), afin de séparer le code Javascript (la logique applicative), du code HTML (la présentation). Mais avec Meteor, cette séparation n'est pas uniquement motivée par un souci d'organisation du code. Les templates sont en effet compilés vers une structure abstraite basée sur JavaScript et envoyée au client. Cette structure est utilisée pour mettre à jour l'interface utilisateur en temps réel à chaque fois que l'utilisateur modifie les données en mémoire ou que le serveur lui envoie les modifications d'autres utilisateurs.  Elle est donc nécessaire pour gérer la réactivité d'une application mais son écriture étant peu commode, on préfère utiliser un langage de template spécifiquement conçu pour ce besoin.
+Comme la plupart des frameworks web, Meteor propose un système de templates (ou vues), afin de séparer le code Javascript (la logique applicative), du code HTML (la présentation). Mais avec Meteor, cette séparation n'est pas uniquement motivée par un souci d'organisation du code. Les templates sont en effet compilés vers une structure abstraite basée sur JavaScript et envoyée au client. Cette structure est utilisée pour mettre à jour l'interface utilisateur en temps réel à chaque fois que l'utilisateur modifie les données localement ou que le serveur lui envoie les modifications d'autres utilisateurs. Elle est donc nécessaire pour gérer la réactivité d'une application mais son écriture étant peu commode, on préfère utiliser un langage de template spécifiquement conçu pour ce besoin.
 
-Il existe plusieurs langages de template, c'est à dire plusieurs syntaxes dont il existe un compilateur capable de construire la structure abstraite envoyée au client. Ce chapitre présente la syntaxe d'**Handlebars**, le système par défaut, mais la plupart des concepts présentés ici sont applicables aux autres syntaxes.
+Il existe plusieurs langages de template, c'est à dire plusieurs syntaxes dont il existe un compilateur capable de construire la structure abstraite envoyée au client. Ce chapitre présente la syntaxe de **Spacebars**, le système par défaut, mais la plupart des concepts présentés ici sont applicables également aux autres syntaxes.
 
-## Présentation d'Handlebars
+## Présentation de Spacebars
 
 ### Syntaxe générale
 
-Handlebars est simplement du HTML enrichi de quelques expressions spécifiques :
+Spacebars est simplement du HTML enrichi de quelques expressions qui lui sont spécifiques :
 
 ```html
 <div class="player {{selected}}">
@@ -17,7 +17,7 @@ Handlebars est simplement du HTML enrichi de quelques expressions spécifiques :
 </div>
 ```
 
-Les expressions notées `{{...}}` signifient à Meteor "affiche quelque chose". Il peut s'agir d'un attribut de l'objet courant (ici les attributs `name` et `score` du joueur courant) ou d'une variable définie dans un *template helper* éponyme (ici la classe `selected`). Nous verrons comment définir des template helpers au paragraphe suivant. L'insertion d'un ou de plusieurs espaces blancs entre les accolades et le label est autorisé.
+Les expressions notées `{{...}}` signifient à Meteor « affiche quelque chose ». Il peut s'agir d'un attribut de l'objet courant (ici les attributs `name` et `score` du joueur courant) ou d'une variable définie dans un *template helper* éponyme (ici la classe `selected`). Nous verrons comment définir des template helpers au paragraphe suivant. L'insertion d'un ou de plusieurs espaces blancs entre les accolades et le label est autorisé. Les accolades `{{` et `}}` sont parfois appelées des moustaches.
 
 Il est également possible de définir des expressions dans les attributs d'une balise :
 
@@ -28,7 +28,7 @@ Il est également possible de définir des expressions dans les attributs d'une 
 
 Un template est défini entre les balises `<template name="tplName">` et `</template>`. L'attribut `name` est obligatoire.
 
-> L'organisme en charge de définir les standards du web, le W3C, travaille actuellement sur une balise `<template>`. Il ne faut pas confondre cette balise HTML avec ce que nous utilisons ici. Avec Meteor les balises templates n'apparaissent jamais dans le DOM, ce sont juste un moyen de définir un bloc de contenu HTML avec lequel il sera possible d’interagir dans le code JavaScript.
+> L'organisme en charge de définir les standards du web, le W3C, travaille actuellement sur une balise `<template>`. Il ne faut pas confondre cette balise HTML avec ce que nous utilisons ici. Avec Meteor les balises templates n'apparaissent jamais dans le DOM, elles ont juste pour rôle de définir un bloc de contenu HTML avec lequel il sera possible d’interagir dans le code JavaScript.
 
 Il peut être nécessaire d'inclure un template à l’intérieur d'un autre template. Pour inclure le template nommé `tplName`, on utilise une *inclusion* qui se note `{{> tplName}}`. L'application leaderboard utilise par exemple une inclusion du template `leaderboard` à l’intérieur d'un `div` défini dans le `<body>` :
 
@@ -62,16 +62,13 @@ Les templates contiennent enfin des blocs logiques comme `{{#if}}...{{/if}}` ou 
 
 La syntaxe `{{! Mon commentaire }}`, permet d'écrire des commentaires, éventuellement sur plusieurs lignes. Ces commentaires sont retirés par le compilateur et ne sont donc jamais envoyés au client.
 
-Si vous souhaitez que votre commentaire apparaisse dans le DOM, il vous suffit d'utiliser la syntaxe classique en HTML :
+Si vous souhaitez écrire un commentaire contenant les caractères `}}` sans mettre au commentaire, vous devez utiliser la syntaxe longue : `{{!-- Ici je peux écrire des {{moustaches}} --}}`.
+
+Si vous souhaitez que votre commentaire soit envoyé au client et apparaisse dans le DOM, il vous suffit d'utiliser la syntaxe normale en HTML :
 
 ```html
-<!-- Mon commentaire, visible dans le DOM -->
+<!-- Mon commentaire, visible dans le DOM grace aux les outils de debogage -->
 ```
-
-La documentation complète d'Handlebars est disponible sur le site officiel <http://handlebarsjs.com/>
-
-> Attention: Meteor a réécrit son propre compilateur pour compiler vos templates en une structure abstraite basée sur JavaScript et conçue pour modifier le DOM de manière réactive et "chirurgicale" (c'est à dire modifier uniquement le nœud qui doit être modifié sans toucher au DOM autour). Le nom interne donné à ce compilateur est *Spacebars*.
-> Il peut donc exister quelques différences avec la spécification définie sur la documentation officielle.
 
 ### Les templates de l'application leaderboard
 
@@ -138,24 +135,6 @@ Players.update(Session.get("selected_player"), {$inc: {score: scoreIncrement}});
 Dans le template maintenant, on remplace l'expression `Give 5 points` par `Give {{scoreIncrement}} points`. Reste enfin à faire le lien entre ce symbole et notre variable via un *template helper* :
 
 ```javascript
-Template.leaderboard.scoreIncrement = scoreIncrement;
-```
-
-`Template` est l'objet global pour accéder aux templates, `leaderboard` est le nom de notre template et `scoreIncrement` est l'expression que nous avons défini entre double accolades dans le template.
-
-> Nous pourrions tout aussi bien écrire une fonction constante, ce qui dans le cas présent est strictement équivalent. Nous verrons l’intérêt d'englober les helpers dans des fonctions lors du chapitre sur la réactivité.
->
-> ```javascript
-> Template.leaderboard.scoreIncrement = function () {
->   return scoreIncrement;
-> };
-> ```
-
-Sauvegardez les deux fichiers modifiés, puis rendez-vous dans le navigateur pour vérifier que l'application fonctionne toujours comme avant. Puis modifiez la variable `scoreIncrement` pour lui donner une autre valeur. Le bouton de l'interface doit être mis à jour et doit correspondre à l'incrément donné lors du clic dessus.
-
-On préfère en général utiliser la méthode `helpers` d'un template. Cette méthode permet de définir plusieurs helpers à la fois, elle prend un seul paramètre qui est un dictionnaire des symboles associés à leur valeur. Vous pouvez utiliser cette méthode pour définir tous les helpers du template `leaderboard` d'un seul coup :
-
-```javascript
 Template.leaderboard.helpers({
   players: function() { ... },
   selected_name: function() { ... },
@@ -163,23 +142,42 @@ Template.leaderboard.helpers({
 });
 ```
 
+Dans le code ci-dessus `Template` est l'objet global pour accéder aux templates, et `leaderboard` est le nom du template pour lequel nous souhaitons définir un helper. On utilise pour se faire la méthode `helpers` de notre template. Cette méthode accepte un unique paramètre qui est un dictionnaire des symboles associés à leur valeur. Ici on associe le symbole `scoreIncrement` utilisé par le template à la valeur de la variable que nous avons défini plus haut.
+
+> Nous pourrions tout aussi bien écrire une fonction constante, ce qui dans le cas présent est strictement équivalent. Nous verrons l’intérêt d'englober les helpers dans des fonctions lors du chapitre sur la réactivité.
+>
+> ```javascript
+> Template.leaderboard.helpers({
+>   scoreIncrement: function() {
+>     return scoreIncrement;
+>   }
+> });
+> ```
+
+Sauvegardez les deux fichiers modifiés, puis rendez-vous dans le navigateur pour vérifier que l'application fonctionne toujours comme avant. Puis modifiez la variable `scoreIncrement` pour lui donner une autre valeur. Le bouton de l'interface doit être mis à jour et doit correspondre à l'incrément donné lors du clic dessus.
+
+Notez que vous pouvez appeler la méthode `helpers` plusieurs fois pour le même template, les helpers nouvellement définis s'ajouteront simplement à ceux qui l'ont été précédemment.
+
+
 ### Sécurité: helpers retournant du code exécutable
 
 Imaginons un template possédant le symbole `{{titlePage}}` associé à l'helper suivant:
 
 ```javascript
-Template.tplName.titlePage = '<h1>Leaderboard</h1>';
+Template.tplName.helpers({
+  titlePage: '<h1>Leaderboard</h1>'
+});
 ```
 
 L'effet désiré étant bien entendu d'afficher une balise `<h1>` contenant le titre "Leaderboard". Ce n'est toutefois pas le résultat obtenu. En effet les balises `<h1>` et `</h1>` s'affichent à l'écran comme du texte et ne sont pas interprétées comme du HTML.
 
 ![Tentative d'attaque XSS](img/xss.png)
 
-Ce comportement est une protection contre les attaques [XSS](https://fr.wikipedia.org/wiki/Cross-site_scripting) qui consistent à injecter du code non désiré dans la page de vos visiteurs. Le texte transmis au template est ainsi systématiquement échappé avec une méthode similaire à celle utilisée par la fonction [htmlspecialchars](http://www.php.net/manual/fr/function.htmlspecialchars.php) de PHP.
+Ce comportement est une protection contre les attaques [XSS](https://fr.wikipedia.org/wiki/Cross-site_scripting) qui consistent à injecter du code non désiré dans la page de vos visiteurs. Nous détaillerons cette attaque et les pratiques pour s'en prémunir dans le chapitre dédié à la sécurité.
 
-Dans le cas présent, la solution au problème consiste simplement à déplacer les balises `<h1></h1>` dans le template en laissant le texte vidé du code HTML dans l'helper. Il peut cependant arriver que vous désiriez afficher une variable contenant du code HTML, dans ce cas vous devez utiliser les triples accolades `{{{helperName}}}` qui indiquent à Meteor de ne pas échapper les caractères spéciaux.
+Dans le cas présent, la solution au problème consiste simplement à déplacer les balises `<h1></h1>` dans le template en laissant le texte vidé du code HTML dans l'helper.
 
-Garder à l'esprit que le code ainsi affiché pourrait contenir du JavaScript malveillant. Soyez donc sûr de l'origine du code que vous affichez de cette manière.
+Il peut cependant arriver que vous désiriez afficher une variable contenant du code HTML, dans ce cas vous devez utiliser les triples accolades `{{{helperName}}}` qui indiquent à Meteor de ne pas échapper les caractères spéciaux. Garder à l'esprit que le code ainsi affiché pourrait contenir du JavaScript malveillant qui serait alors executé. Soyez donc sûr de l'origine du code que vous affichez de cette manière.
 
 ## Les blocs logiques
 
@@ -195,7 +193,7 @@ Si nécessaire vous pouvez définir un bloc `else` :
 {{#if condition}} ... {{else}} ... {{/if}}
 ```
 
-Enfin le bloc `{{#unless condition}}` fonctionne comme `if` mais inverse la valeur booléenne de la condition, autrement dit le bloc est affiché si la condition n'est pas vérifiée.
+Le bloc `{{#unless condition}}` fonctionne comme `if` mais inverse la valeur booléenne de la condition, autrement dit le bloc est affiché si la condition n'est pas vérifiée.
 
 > Rappelons au passage la liste des valeurs qui sont évaluées fausses en JavaScript :
 >
@@ -213,10 +211,12 @@ Enfin le bloc `{{#unless condition}}` fonctionne comme `if` mais inverse la vale
 Jusqu'à présent nos templates helpers retournait de simple chaînes de caractères, mais il est tout à fait possible de retourner un objet JSON :
 
 ```javascript
-Template.player_infos.player = {
-	name: 'Max',
-	score: 20
-};
+Template.player_infos.helpers({
+  player: {
+    name: 'Max',
+    score: 20
+  }
+});
 ```
 Le template devra alors utiliser la notation pointée pour accéder aux attributs de l'objet `player`.
 
@@ -226,7 +226,7 @@ Le template devra alors utiliser la notation pointée pour accéder aux attribut
 </template>
 ```
 
-Il est assez courant d'afficher plusieurs propriétés d'un même objet. Le bloc `{{#with objectname}}` permet d'éviter de se répéter. En gardant la même fonction helper, le template `player_infos` pourra ainsi se réécrire :
+Il est assez courant d'afficher plusieurs propriétés d'un même objet. Le bloc `{{#with objectname}}` permet d'éviter de se répéter. En gardant le même template helper, le template `player_infos` pourra ainsi se réécrire :
 
 ```html
 <template name="player_infos">
@@ -252,11 +252,13 @@ Comme pour le bloc `if`, il est possible de définir une condition `{{else}}` qu
 Le bloc `each` reçoit une liste d'objets JavaScript. À l’intérieur du bloc l'objet est attaché au contexte de la même manière que pour le bloc `with`. Ainsi si les éléments de la liste sont des objets Javascript, vous aurez directement accès aux attributs de ces objets :
 
 ```javascript
-Template.player_infos.players = [
-  { name: 'Max', score: 20 },
-  { name: 'Elo', score: 17 },
-  { name: 'Pil', score: 13 }
-];
+Template.player_infos.helpers({
+  players: [
+    { name: 'Max', score: 20 },
+    { name: 'Elo', score: 17 },
+    { name: 'Pil', score: 13 }
+  ]
+});
 ```
 
 ```html
@@ -270,7 +272,9 @@ Template.player_infos.players = [
 Dans le cas où les éléments de la liste fournie au bloc `each` sont des variables simples (par exemple des chaînes de caractères), vous pouvez utiliser le symbole `{{this}}` pour les afficher dans le template :
 
 ```javascript
-Template.calendar.days = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+Template.calendar.helpers({
+  days: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
+});
 ```
 
 ```html
@@ -533,6 +537,6 @@ Template.player.events({
 
 ----------------------------
 
-Toutes ces notions peuvent vous sembler être une solution un peu complexe au problème pourtant appartement simple de transmettre des données à une vue. Néanmoins, vous verrez que dans le chapitre sur la réactivité. Mais pour l'heure, place aux collections !
+La méthode pour transferer des données depuis le code javascript vers le template (avec un template helper) et dans l'autre sens depuis le template vers le code javascript (avec un évement). Cette séparation vous sembler être une solution un peu complexe au problème pourtant appartement simple de transmettre des données à une vue. Néanmoins, vous verrez que dans le chapitre sur la réactivité. Mais pour l'heure, place aux collections !
 
 ## Questions

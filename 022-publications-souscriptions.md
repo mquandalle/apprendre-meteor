@@ -1,8 +1,10 @@
 # Je publie, tu souscries
 
-Lors du chapitre sur les Collections nous avons défini des règles de sécurité pour restreindre l'écriture sur la base de donnée d'une application Meteor. Mais pour le moment tous les utilisateurs conservent un accès en lecture à toutes les données de l'application. Remédions-y dans ce chapitre !
+Lors du chapitre sur les collections nous avons défini des règles de sécurité pour restreindre l'écriture sur la base de donnée d'une application Meteor. Mais pour le moment tous les utilisateurs conservent un accès en lecture à toutes les données de l'application. Remédions-y dans ce chapitre !
 
 ## Concept
+
+@TODO en fait toute les applications fonctionnent sur un modèle de publication souscription, mais ce modèle n'est en général pas explicité ou défini comme tel. Ce fait est favorable à Meteor. → En conclusion ?
 
 Une application web peut traiter des volumes de données gigantesques, parmi lesquelles se trouvent notamment des informations privées. La base de données Minimongo exécutée côté client ne peut donc pas être une simple copie conforme de la base de donnée réelle côté serveur. Au contraire elle doit contenir un sous-ensemble de documents, à la fois pour des raisons de performances et de sécurité des données.
 
@@ -81,8 +83,6 @@ if (Meteor.isClient) {
 La souscription est située dans un contexte réactif `Deps.autorun`. La modification de la variable de session (par exemple si l'utilisateur consulte l'article suivant) entraîne une ré-exécution du code et donc l'initialisation d'une nouvelle souscription. Mais mieux encore, Meteor va automatiquement stopper la souscription précédente (avec la méthode `.stop()` vue précédemment), de sorte que ce simple code est suffisant pour récupérer automatiquement les données dont on a besoin et oublier celles dont ont a plus l'utilité.
 
 ## Présentation de `todos`
-
-
 
 ```sh
 $ meteor create --example parties

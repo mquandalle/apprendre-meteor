@@ -7,7 +7,7 @@ Le terme *session* peut être source de confusion -- en particulier chez les dé
 L'object `Session` de Meteor fournit un stockage :
 
 1. exclusivement du côté client
-2. par clé-valeur 
+2. par clé-valeur
 3. en mémoire
 4. global
 
@@ -17,7 +17,7 @@ On définit un couple clé-valeur avec la méthode `set` :
 
 ```javascript
 Session.set('key', value);
-``` 
+```
 
 où `'key'` est une chaîne de caractères et `value` n'importe quel objet JSON (y compris des objets simples comme un nombre ou une chaîne de caractères).
 
@@ -25,7 +25,7 @@ Pour récupérer la valeur associée à une clé, on utilise la méthode `get` :
 
 ```javascript
 Session.get('key');
-``` 
+```
 
 L'objet `Session` étant accessible depuis n'importe où sur le client, c'est un stockage qui est utile pour définir en un même endroit toutes les variables relatives à l'état courant de l'application (par exemple la position et le niveau de zoom sur une carte interactive).
 
@@ -43,7 +43,7 @@ L'API de ce système de stockage est donc relativement simple :
 3
 ```
 
-Ce qui différencie une variable de session d'une simple variable JavaScript est la notion de réactivité. Si vous utilisez la valeur d'une variable de session à l'intérieur d'un template helper, celui-ci sera automatiquement mis à jour à chaque fois que la valeur attachée à la clé sera modifiée. 
+Ce qui différencie une variable de session d'une simple variable JavaScript est la notion de réactivité. Si vous utilisez la valeur d'une variable de session à l'intérieur d'un template helper, celui-ci sera automatiquement mis à jour à chaque fois que la valeur attachée à la clé sera modifiée.
 
 Dans l'application leaderboard une variable de session est utilisée pour gérer la sélection d'un joueur. Cliquez sur un joueur, puis dans la console du navigateur récupérez l'identifiant du joueur sélectionné avec `id = Session.get('selected_player')`. Cliquez à présent sur un autre joueur, puis toujours dans la console faites un `Session.set('selected_player', id)`. L'interface est alors instantanément mise à jour, le joueur possédant l'identifiant que nous avions récupéré est à nouveau sélectionné.
 
@@ -75,11 +75,11 @@ Template.leaderboard.selected_name = function () {
   switch (selectedPlayers.length) {
     case 0:
       return false;
-    
+
     case 1:
       var player = Players.findOne(selectedPlayers[0]);
       return player && player.name;
-    
+
     default:
       return selectedPlayers.length + " selected players";
   }
@@ -142,9 +142,9 @@ Un tableur (comme Microsoft Excel ou OpenOffice Calc) est probablement l'exemple
 1. De ré-exécuter un calcul plusieurs fois
 2. De définir *quand* on doit ré-exécuter ce calcul
 
-### `Deps`, le chef d'orchestre de la réactivité
+### `Tracker`, le chef d'orchestre de la réactivité
 
-Meteor dispose d'une libraire nommée `Deps` qui répond à ces deux besoins. Cette libraire n'est utilisable que du coté client. C'est elle qui est utilisée sous le capot par le système de templates pour mettre à jour l'interface à chaque fois qu'une variable de session est modifiée. Il est tout à fait possible de l'utiliser directement.
+Meteor dispose d'une libraire nommée `Tracker` qui répond à ces deux besoins. Cette libraire n'est utilisable que du coté client. C'est elle qui est utilisée sous le capot par le système de templates pour mettre à jour l'interface à chaque fois qu'une variable de session est modifiée. Il est tout à fait possible de l'utiliser directement.
 
 La méthode `autorun` est probablement celle que vous utiliserez le plus. Elle vous permet d’exécuter une fonction une première fois immédiatement, puis à nouveau à chaque fois que l'une de ses dépendances est modifiée.
 
@@ -154,7 +154,7 @@ Vous pouvez essayez le code qui suit dans une nouvelle application vierge : `met
 if (Meteor.isClient) {
   Session.setDefault('a', 10);
 
-  Deps.autorun(function () {
+  Tracker.autorun(function () {
     var b = Session.get('a') + 1;
     console.log('b = ' + b);
   });
@@ -163,26 +163,26 @@ if (Meteor.isClient) {
 
 La fonction fournie en unique paramètre à la méthode `autorun` est exécutée une première fois et produit le log `b = 11` dans la console immédiatement. Modifions la valeur de la variable de session dans la console avec un `Session.set('a', 100);`, la fonction est alors automatiquement ré-exécutée et produit un nouveau log `b = 101`. En revanche si vous modifiez une autre variable de session, par exemple `Session.set('c', 'hello')`, la fonction ne sera pas ré-exécutée.
 
-> *Un peu de vocabulaire*  
+> *Un peu de vocabulaire*
 > La fonction que nous avons donnée en paramètre à la méthode `autorun` s'appelle un *contexte réactif*. Ce contexte dispose d'un certain nombre de *dépendances*. Lorsqu'une ou plusieurs de ses dépendances sont modifiées, on dit que le contexte est *invalidé*.
 
-Au chapitre précédent nous avons vu qu'il est possible d'englober les templates helpers dans des fonctions. Cela permet en fait de créer un contexte réactif. Comme pour `Deps.autorun` la fonction est exécutée une première fois et son résultat est affiché dans l'interface, puis ré-exécutée à chaque invalidation de contexte.
+Au chapitre précédent nous avons vu qu'il est possible d'englober les templates helpers dans des fonctions. Cela permet en fait de créer un contexte réactif. Comme pour `Tracker.autorun` la fonction est exécutée une première fois et son résultat est affiché dans l'interface, puis ré-exécutée à chaque invalidation de contexte.
 
-Vous aurez peut-être parfois besoin d'utiliser la variable booléenne `Deps.active` qui vaut vrai uniquement à l'intérieur d'un contexte réactif :
+Vous aurez peut-être parfois besoin d'utiliser la variable booléenne `Tracker.active` qui vaut vrai uniquement à l'intérieur d'un contexte réactif :
 
 ```javascript
-Deps.autorun(function() {
-  console.log('Deps.active inside Deps.autorun: ' + Deps.active);
+Tracker.autorun(function() {
+  console.log('Tracker.active inside Tracker.autorun: ' + Tracker.active);
 });
 
-console.log('Deps.active outside reactive context: ' + Deps.active);
+console.log('Tracker.active outside reactive context: ' + Tracker.active);
 ```
 
 Seules les *sources réactives* peuvent invalider un contexte réactif. Ainsi le code suivant ne produit qu'un seul log dans la console avec la valeur `a = 1`, mais la fonction n'est pas ré-exécutée lorsque l'on assigne une nouvelle valeur à la variable `a`.
 
 ```javascript
 var a = 1;
-Deps.autorun(function() {
+Tracker.autorun(function() {
   console.log('a = ' + a);
 });
 a = 4;
@@ -215,7 +215,7 @@ Les variables de sessions ne sont pas les seules sources réactives. Un certain 
 La réactivité de cet objet vous permet par exemple d'effectuer une action à chaque fois qu'un client se connecte ou se déconnecte du serveur :
 
 ```javascript
-Deps.autorun(function() {
+Tracker.autorun(function() {
   if (Meteor.status().connected)
     console.log('Hello server');
   else
@@ -227,7 +227,7 @@ Lancer le serveur, le log "Hello server" apparaît dans la console. Arrêtez le,
 
 --------------------
 
-Dans ce chapitre nous avons introduit le paradigme de *programmation réactive*, ainsi que deux sources réactives : `Session` et `Meteor.status`. Nous verrons lors du chapitre sur les collections que les *curseurs* sont une autre source réactive importante. Sous le capot, tous ces objets utilisent la même bibliothèque `Deps`. De ce fait, il est tout à fait possible de créer vos propres sources réactives en utilisant les méthodes de cette bibliothèque. Un chapitre de la partie "Meteor avancé" est dédié à l’implémentation de la réactivité dans un objet JavaScript.
+Dans ce chapitre nous avons introduit le paradigme de *programmation réactive*, ainsi que deux sources réactives : `Session` et `Meteor.status`. Nous verrons lors du chapitre sur les collections que les *curseurs* sont une autre source réactive importante. Sous le capot, tous ces objets utilisent la même bibliothèque `Tracker`. De ce fait, il est tout à fait possible de créer vos propres sources réactives en utilisant les méthodes de cette bibliothèque. Un chapitre de la partie « Notions avancées » est dédié à l’implémentation de la réactivité pour un objet JavaScript.
 
 ## Questions
 
@@ -236,13 +236,13 @@ Dans ce chapitre nous avons introduit le paradigme de *programmation réactive*,
     - la valeur est stockée dans un cookie
     - la valeur est réactive
 \
-2. Comment s'appelle la fonction donnée en paramètre à la méthode `Deps.autorun` ?
+2. Comment s'appelle la fonction donnée en paramètre à la méthode `Tracker.autorun` ?
     - une source réactive
     - un contexte réactif
     - une dépendance
 \
-3. Qu'indique la variable `Deps.active` ?
+3. Qu'indique la variable `Tracker.active` ?
     - Elle indique si l'objet courant est réactif
     - Elle indique si la réactivité est activé pour l'application
     - Elle indique si le contexte courant est réactif
-    - Elle indique que `Deps` fonctionne
+    - Elle indique que `Tracker` fonctionne

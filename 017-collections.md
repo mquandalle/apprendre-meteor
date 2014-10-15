@@ -1,6 +1,6 @@
 # Les collections
 
-Après les *Templates* et les *Sessions*, les **Collections** sont le troisième objet élémentaire utilisé par l'application leaderboard. Jusqu'à présent nous nous sommes concentré sur le code exécutée du côté client, mais nous avons aussi besoin d'un serveur pour sauvegarder la liste des joueurs associée à leur score - sans quoi les modifications d'un utilisateur seraient perdues dès qu'il se déconnecte. Autrement dit nous avons besoin de *persister des données*, et c'est précisément le rôle des collections. 
+Après les *Templates* et les *Sessions*, les **Collections** sont le troisième objet élémentaire utilisé par l'application leaderboard. Jusqu'à présent nous nous sommes concentré sur le code exécutée du côté client, mais nous avons aussi besoin d'un serveur pour sauvegarder la liste des joueurs associée à leur score - sans quoi les modifications d'un utilisateur seraient perdues dès qu'il se déconnecte. Autrement dit nous avons besoin de *persister des données*, et c'est précisément le rôle des collections.
 
 ## Persister des données depuis le serveur
 
@@ -9,10 +9,10 @@ Du côté serveur, une collection est simplement une API pour exécuter des requ
 > Le terme *collection* est issu du monde NoSQL (pour Not Only SQL) et correspond à la notion de *table* dans les bases de données relationnelles (MySQL, PosgreSQL, Microsoft Access, Oracle, etc.). Une collection permet de stocker des *documents*, notion analogue à celle de *ligne*.
 
 ```javascript
-maCollection = new Meteor.Collection('collectionNameOnTheDatabase');
+maCollection = new Mongo.Collection('collectionNameOnTheDatabase');
 ```
 
-Le constructeur `Meteor.Collection` prend en premier paramètre le nom de la collection utilisé dans MongoDB. Si cette collection n'existe pas, une collection vide sera créée. Ce constructeur retourne un objet, nommé ici `maCollection`, possédant les méthodes pour interagir avec les documents de la collection - c'est à dire en insérer, en modifier ou en supprimer. On utilise en général une variable globale pour pouvoir accéder à cet objet - et donc aux données - depuis n'importe quel fichier de l'application.
+Le constructeur `Mongo.Collection` prend en premier paramètre le nom de la collection utilisé dans MongoDB. Si cette collection n'existe pas, une collection vide sera créée. Ce constructeur retourne un objet, nommé ici `maCollection`, possédant les méthodes pour interagir avec les documents de la collection - c'est à dire en insérer, en modifier ou en supprimer. On utilise en général une variable globale pour pouvoir accéder à cet objet - et donc aux données - depuis n'importe quel fichier de l'application.
 
 > * avec JavaScript la déclaration d'une variable globale se fait en omettant le mot clé `var`
 > * avec CoffeeScritpt on préfixe le nom de la variable par `@`. En fait `@var` est compilé en `this.var`. À l’extérieur des fonctions `this` est l'objet `window`, le même pour tous les fichiers. Attacher une variable à l'objet `window` permet donc de simuler une variable globale. Une fois cette variable déclarée, vous devez l'utiliser sans la préfixer par `@`.
@@ -20,7 +20,7 @@ Le constructeur `Meteor.Collection` prend en premier paramètre le nom de la col
 Il est également possible d'utiliser les collections sans persister les données dans la base de donnée en utilisant le paramètre `null` lors de la création de la collection. Cela permet d'utiliser l'API des collections pour interagir avec des documents présents en mémoire. Ces documents seront donc perdus lors de l'arrêt du serveur.
 
 ```javascript
-collectionLocale = new Meteor.Collection(null);
+collectionLocale = new Mongo.Collection(null);
 ```
 
 MongoDB ne nécessite pas de schéma prédéfini, vous n'avez donc pas besoin de définir des colonnes avec un nom et un type et vous pouvez insérer n'importe quel document JSON. Lors de l'insertion d'un document, MongoDB ajoute automatiquement un index nommé par défaut `_id`. La méthode `insert` retourne l'identifiant du document inséré.
@@ -38,9 +38,9 @@ Vous pouvez ensuite utiliser cet identifiant pour modifier le document :
 
 ```javascript
 maCollection.update(
-  { 
+  {
     _id: documentId
-  }, 
+  },
   {
     message: "Hello New World",
     version: 1.5
@@ -52,9 +52,9 @@ Le premier paramètre est le sélecteur et le second est le nouveau document. Il
 
 ```javascript
 maCollection.update(
-  { 
+  {
     _id: documentId
-  }, 
+  },
   {
     $set: {
       version: 2
@@ -88,22 +88,18 @@ maCollection.remove(documentId);
 
 Tout comme la méthode `update`, `remove` dispose également d'une option booléenne `mutli`, fausse par défaut.
 
-## En ligne de commande
-
-[TODO] À détailler
-
-La commande `meteor mongo` vous donne accès à un shell interactif pour interagir avec la base de données de votre application. Pour le moment il faut que l'application soit déjà lancée.
-
-> `meteor mongo` fonctionne également avec les application déployées dans le nuage Meteor. Utilisez simplement `meteor mongo monappli.com`. Si vous avez défini un mot de passe il vous sera demandé.
-
 ## Minimongo : une base de donnée côté client !
 
-Dans la plupart des applications web, un client JavaScript qui souhaite accéder à des données utilisera une méthode *Ajax* avec une fonction *callback* recevant sont résultat si tout c'est bien passé. Cette architecture implique l'écriture d'instructions très différentes selon que l'on accède aux données depuis le client (il faut écrire une requête AJAX) ou depuis le serveur (il faut écrire une requête SQL). Or l'utilisation de la même API sur le client et le serveur est un des principes fondateur de Meteor. Le framework propose ainsi d'utiliser **minimongo**, une base de donnée côté client - et implémenté en JavaScript - qui propose la même API que MongoDB sur le serveur. 
+Dans la plupart des applications web, un client JavaScript qui souhaite accéder à des données utilisera une méthode *Ajax* avec une fonction *callback* recevant son résultat si tout c'est bien passé. Cette architecture implique l'écriture d'instructions très différentes selon que l'on accède aux données depuis le client (il faut écrire une requête AJAX) ou depuis le serveur (il faut écrire une requête SQL). Or l'utilisation de la même API sur le client et le serveur est un des principes fondateur de Meteor :
 
-Ainsi on crée une base de donnée côté client de la même manière que sur le serveur :
+> *Base de donnée partout* : Utiliser la même API transparente pour accéer aux données sur le client et sur le serveur.
+
+Pour respecter ce principe le framework propose d'utiliser **minimongo**, une base de donnée côté client - et implémenté en JavaScript - qui propose la même API que MongoDB sur le serveur.
+
+On crée ainsi une base de donnée côté client de la même manière que sur le serveur :
 
 ```javascript
-maCollection = new Meteor.Collection('collection');
+maCollection = new Mongo.Collection('collection');
 ```
 
 Si le paramètre `collection` correspond à une collection existante dans la base de données sur le serveur, ses données seront automatiquement synchronisés avec la base de données sur le client. Ce mécanisme de synchronisation est basé sur le système de publication/souscription qui sera détaillé dans un prochain chapitre.
@@ -135,7 +131,7 @@ La signature de fonction `(err, res)` est une convention largement utilisée dan
 
 Comme pour toutes les autres bibliothèques disponibles côté client, nous pouvons tester minimongo directement dans la console du navigateur. Dans l'application leaderboard vous pouvez par exemple exécuter la requête suivante :
 
-```Javascript
+```javascript
 > Players.findOne({name: "Nikola Tesla"});
 Object {_id: "6c53bbe4-5013-4d87-ad4d-957230f12d60", name: "Nikola Tesla", score: 150}
 ```
@@ -164,7 +160,7 @@ Et voilà ! Ces modifications sur la base de données locale sont automatiquemen
 
 Pas de réactivité sans source réactive. Si l'interface utilisateur est automatiquement mise à jour lorsqu'un nouveau joueur est ajouté, c'est parce que l'objet curseur, retourné par la méthode `.find()` est une source réactive. Lorsque qu'un document correspondant au curseur est inséré, modifié ou supprimé cela provoque une invalidation de contexte.
 
-Il est donc tout à fait possible d'utiliser cette source réactive avec `Deps.autorun`. Ici nous utilisons par exemple la méthode `.count()` d'un curseur qui retourne le nombre de documents correspondants : 
+Il est donc tout à fait possible d'utiliser cette source réactive avec `Deps.autorun`. Ici nous utilisons par exemple la méthode `.count()` d'un curseur qui retourne le nombre de documents correspondants :
 
 ```javascript
 Deps.autorun(function () {
@@ -182,7 +178,7 @@ Deps.autorun(function () {
 });
 ```
 
-Ce contexte réactif sera automatiquement ré-exécuté si la variable de session est modifié, mais ne le sera pas si les documents de minimongo sont modifiés car nous avons désactiver la réactivité. 
+Ce contexte réactif sera automatiquement ré-exécuté si la variable de session est modifié, mais ne le sera pas si les documents de minimongo sont modifiés car nous avons désactiver la réactivité.
 
 ### Exploiter les résultats d'un curseur
 
@@ -244,7 +240,7 @@ Nous allons utiliser un observateur pour émettre une notification de navigateur
 
 ![Notification HTML5 émise par une application web](img/notification.png)
 
-> Les notifications HTML5 ne fonctionnent que sur les versions modernes de Firefox, Chrome et Safari. Cette démonstration ne fonctionne donc pas sur Internet Explorer ou Opéra. La liste des navigateurs supportés est disponible sur le site [caniuse.com](http://caniuse.com/notifications).  
+> Les notifications HTML5 ne fonctionnent que sur les versions modernes de Firefox, Chrome et Safari. Cette démonstration ne fonctionne donc pas sur Internet Explorer ou Opéra. La liste des navigateurs supportés est disponible sur le site [caniuse.com](http://caniuse.com/notifications).
 > Vous pouvez éventuellement remplacer le constructeur `Notification` par un simple `console.log`.
 
 Un observateur se définit avec la méthode `observe` de l'objet curseur. Nous allons observer tout les documents et nous utilisons donc le curseur `.find()` sans critère de sélection.
@@ -381,26 +377,26 @@ Players.allow({
 La première règle `allow` définie précédemment retournant toujours `false`, seule cette deuxième règle régira l'insertion des documents.
 
 > Si l'attribut `name` de l'objet `doc` n'existe pas, l'expression `doc.name.length` provoquera une erreur au moment de l’exécution car l'objet `undefined` ne possède pas d'attribut `length`. Il faut donc vérifier deux conditions dans cet ordre :
-> 
+>
 > 1. Le joueur a un nom
 > 2. La longueur de ce nom est supérieure ou égale à 5
 >
-> Cette double vérification s'écrit : 
-> 
+> Cette double vérification s'écrit :
+>
 > ```javascript
 > doc.name && doc.name.length >= 5
 > ```
-> 
-> CoffeeScript propose l'opérateur `?.` pour éviter de ce répéter. L'expression JavaScript ci-dessus est ainsi équivalente à l'expression CoffeeScript suivante :
-> 
+>
+> CoffeeScript propose l'accesseur `?.` pour éviter de ce répéter. L'expression JavaScript ci-dessus est ainsi équivalente à l'expression CoffeeScript suivante :
+>
 > ```coffee
 > doc.name?.length >= 5
 > ```
 >
 > Notons enfin que les utilisateurs de CoffeeScript peuvent chaîner les inégalités :
-> 
+>
 > ```coffee
-> 20 > doc.name?.length >= 5
+> 5 <= doc.name?.length < 20
 > ```
 
 ### Les interdictions avec `deny`
@@ -418,30 +414,11 @@ Players.deny({
 
 Il est également possible de définir plusieurs règles `deny` pour une même opération. Lorsqu'un client essaye d'écrire dans une collection, le serveur commence par vérifier toutes les règles `deny`. Si aucune d'elles ne retourne `true`, le serveur vérifie alors les règles `allow`. L'écriture est autorisée si et seulement si aucune règle `deny` ne retourne `true` et au moins une règle `allow` retourne `true`.
 
-En général, on utilise le paramètre `userId` pour définir des règles en fonction des prérogatives d'un utilisateur. Ce système sera présenté ultérieurement et les règles définies ici pour l'application leaderboard ont pour seul intérêt d'illustrer le modèle de sécurité de validation des données.
-
-### Modèle de sécurité
-
-Toutes les autorisations/interdictions sont centralisées au niveau de la collection, ce qui est résolument une bonne chose. Néanmoins ce n'est peut-être pas un modèle que vous avez utilisé précédemment.
-
-Il est en effet assez courant de récupérer les données d'un formulaire, puis de vérifier que ces données sont valides, puis si toutes les conditions sont vérifiées, de réaliser l'opération dans la base de donnée. Voici par exemple un code PHP qui suit ce modèle :
-
-```php
-if (strlen($_POST['player']) < 5) {
-  $bdd->exec('
-    INSERT INTO players (name, score)
-    VALUES ('. mysql_real_escape_string($_POST['player']) .', 0)
-  ');
-}
-```
-
-Le problème c'est que l'instruction `mysql.insert` ne vérifie pas elle-même la condition `strlen($_POST['player']) < 5` avant de réaliser l'insertion du joueur. Autrement dit on suppose que l'instruction est exécutée avec des données qui ont été vérifiées précédemment. Si une autre partie de code de l'application réalise également cette insertion, il faudra valider les données à cet endroit là aussi. Ainsi il arrive parfois que des hackers arrivent à contourner les règles de sécurité sur des sites aussi populaires que facebook, par exemple en passant par l'interface mobile du site, dont les règles de validations peuvent différer de l'interface classique.
-
-Définir toutes les conditions de validation au niveau de la collection avec les méthodes `Collection.allow` et `Collection.deny` permet de s'assurer qu'il sera impossible de les contourner. En effet les méthodes `insert`, `update` et `remove` vérifient systématiquement ces conditions avant d'effectuer les opérations, et il n'est donc pas nécessaire de vérifier les paramètres donnés à ces requêtes. Ce modèle de sécurité est particulièrement rendu nécessaire par l'utilisation de *minimongo* côté client qui permet à n'importe qui d'essayer d’exécuter n'importe quelle requête, et il ne faut donc pas se reposer sur le fait que les requêtes sont faites avec des données déjà validés.
+En général, on utilise le paramètre `userId` pour définir des règles en fonction des prérogatives d'un utilisateur. Ce système sera présenté ultérieurement, les règles définies ici pour l'application leaderboard ont pour seul intérêt d'illustrer le modèle de sécurité et de validation des données.
 
 ### Restrictions sur les contextes non sécurisés
 
-Le modèle de sécurité de Meteor est battit sur le principe de non confiance dans le code exécuté du côté client. En effet, un client peut tout à fait exécuter du code différent de celui que nous lui avons envoyé. On considère donc le code client comme un "contexte non sécurisé". Au contraire le code coté serveur est un "contexte sécurisé".
+Le modèle de sécurité de Meteor est batti sur le principe de non confiance dans le code exécuté du côté client. En effet, un client peut tout à fait exécuter un code différent de celui que nous lui avons envoyé. On considère donc le code client comme un « contexte non sécurisé ». Au contraire le code coté serveur est un « contexte sécurisé ».
 
 Pour des raisons de sécurité, Meteor impose les restrictions suivantes pour les requêtes `update` et `remove` dans un contexte non sécurisé :
 
@@ -457,7 +434,7 @@ Pour des raisons de sécurité, Meteor impose les restrictions suivantes pour le
 > Players.update(playerId, {$set: {score: 100}});
 
 // Le sélecteur fonctionne, mais il est déprécié.
-// Il est conseillé d'utiliser la forme réduite (c'est à dire la 
+// Il est conseillé d'utiliser la forme réduite (c'est à dire la
 // requête précédente)
 > Players.update({_id: playerId}, {$set: {score: 100}});
 
@@ -475,7 +452,7 @@ Ces restrictions peuvent être très contraignantes dans certains cas. Nous verr
 
 Implémenter une base de donnée du côté client est résolument un point fort en faveur de Meteor. Celle-ci s'intègre parfaitement avec les autres packages de l'écosystème pour proposer une synchronisation automatique ou encore des curseurs réactifs. Les collections implémentent également un modèle de sécurité robuste et cohérent avec le fonctionnement global du framework.
 
-Après avoir étudié les Templates, les Sessions et les Collections, vous en savez maintenant assez pour construire l'application leaderboard. Cela peut vous sembler beaucoup de travail pour une application relativement simple, mais toutes ces notions seront réutilisées dans chaque application Meteor et vous ferrons gagner un temps précieux. Dès le prochain chapitre nous étudierons `parties` une autre application fournie avec Meteor. 
+Après avoir étudié les Templates, les Sessions et les Collections, vous en savez maintenant assez pour construire l'application leaderboard. Cela peut vous sembler beaucoup de travail pour une application relativement simple, mais toutes ces notions seront réutilisées dans chaque application Meteor et vous ferrons gagner un temps précieux. Dès le prochain chapitre nous étudierons `parties` une autre application fournie avec Meteor.
 
 En attendant, libre à vous d'ajouter encore quelques fonctionnalités au `leaderboard`. Je mets à votre disposition un dépôt sur github contenant l'historique de l'ensemble des modifications effectuées lors de ces sept premiers chapitres.
 
