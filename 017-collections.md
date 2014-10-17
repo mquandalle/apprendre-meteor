@@ -32,7 +32,7 @@ var documentId = maCollection.insert({
 });
 ```
 
-> Sous le capot, Meteor utilise ici la bibliothèque *Fibers* qui permet d'écrire dans un style synchrone du code qui s’exécute en fait de manière asynchrone. Un chapitre de la partie "Meteor avancé" est consacré à ce sujet.
+> Sous le capot, Meteor utilise ici la bibliothèque *Fibers* qui permet d'écrire dans un style synchrone du code qui s’exécute en fait de manière asynchrone. Un chapitre de la partie « Notion avancées » est consacrée à ce sujet.
 
 Vous pouvez ensuite utiliser cet identifiant pour modifier le document :
 
@@ -160,10 +160,10 @@ Et voilà ! Ces modifications sur la base de données locale sont automatiquemen
 
 Pas de réactivité sans source réactive. Si l'interface utilisateur est automatiquement mise à jour lorsqu'un nouveau joueur est ajouté, c'est parce que l'objet curseur, retourné par la méthode `.find()` est une source réactive. Lorsque qu'un document correspondant au curseur est inséré, modifié ou supprimé cela provoque une invalidation de contexte.
 
-Il est donc tout à fait possible d'utiliser cette source réactive avec `Deps.autorun`. Ici nous utilisons par exemple la méthode `.count()` d'un curseur qui retourne le nombre de documents correspondants :
+Il est donc tout à fait possible d'utiliser cette source réactive avec `Tracker.autorun`. Ici nous utilisons par exemple la méthode `.count()` d'un curseur qui retourne le nombre de documents correspondants :
 
 ```javascript
-Deps.autorun(function () {
+Tracker.autorun(function () {
   console.log('nb_players: ' + Players.find().count())
 });
 ```
@@ -171,14 +171,14 @@ Deps.autorun(function () {
 Ce code générera une nouvelle sortie log dans la console à chaque fois que le nombre de documents est modifié. Un curseur est réactif par défaut, mais il est possible de désactiver ce comportement avec l'option booléenne `reactive` :
 
 ```javascript
-Deps.autorun(function () {
+Tracker.autorun(function () {
   var min_score = Session.get('min-score');
   var cursor = Players.find({score: {$gt: min_score}}, {reactive: false});
   console.log(cursor.count() + 'players have a score greater than ' + min_score);
 });
 ```
 
-Ce contexte réactif sera automatiquement ré-exécuté si la variable de session est modifié, mais ne le sera pas si les documents de minimongo sont modifiés car nous avons désactiver la réactivité.
+Ce contexte réactif sera automatiquement ré-exécuté si la variable de session est modifié, mais ne le sera pas si les documents de minimongo sont modifiés car nous avons désactivé la réactivité. Cette option est utile pour des raisons de performances.
 
 ### Exploiter les résultats d'un curseur
 
@@ -193,7 +193,7 @@ Avec l'API classique de MongoDB la méthode `find` retourne directement une list
 ]
 ```
 
-Les curseurs possèdent également les méthodes `forEach` et `map` qui fonctionnent comme pour les listes classiques. Ces deux méthodes acceptent en unique paramètre une fonction qui sera exécutée à chaque itération :
+Les curseurs possèdent également les méthodes `forEach` et `map` qui fonctionnent comme pour les tableaux classiques. Ces deux méthodes acceptent en unique paramètre une fonction qui sera exécutée à chaque itération :
 
 ```javascript
 // Un exemple avec forEach
@@ -240,10 +240,10 @@ Nous allons utiliser un observateur pour émettre une notification de navigateur
 
 ![Notification HTML5 émise par une application web](img/notification.png)
 
-> Les notifications HTML5 ne fonctionnent que sur les versions modernes de Firefox, Chrome et Safari. Cette démonstration ne fonctionne donc pas sur Internet Explorer ou Opéra. La liste des navigateurs supportés est disponible sur le site [caniuse.com](http://caniuse.com/notifications).
+> Les notifications HTML5 ne fonctionnent que sur les versions modernes de Firefox, Chrome, et Safari. Cette démonstration ne fonctionne donc pas sur Internet Explorer ou Opéra. La liste des navigateurs supportés est disponible sur le site [caniuse.com](http://caniuse.com/notifications).
 > Vous pouvez éventuellement remplacer le constructeur `Notification` par un simple `console.log`.
 
-Un observateur se définit avec la méthode `observe` de l'objet curseur. Nous allons observer tout les documents et nous utilisons donc le curseur `.find()` sans critère de sélection.
+Un observateur se définit avec la méthode `observe` de l'objet curseur. Nous allons observer tout les documents et utilisons donc le curseur `.find()` sans critère de sélection.
 
 ```javascript
 Players.find().observe({
@@ -448,7 +448,7 @@ Notez que le package `insecure` supprime la notion de contexte non sécurisé, e
 
 Ces restrictions peuvent être très contraignantes dans certains cas. Nous verrons dans le chapitre sur les *méthodes* comment créer un contexte sécurisé du côté client, ce qui nous permettra de les outrepasser.
 
---------------------------------------------
+---
 
 Implémenter une base de donnée du côté client est résolument un point fort en faveur de Meteor. Celle-ci s'intègre parfaitement avec les autres packages de l'écosystème pour proposer une synchronisation automatique ou encore des curseurs réactifs. Les collections implémentent également un modèle de sécurité robuste et cohérent avec le fonctionnement global du framework.
 

@@ -123,7 +123,7 @@ $ cd ~/meteor-apps/
 
 On commence avec l'application *leaderboard* fournie avec Meteor. Pour la récupérer dans votre répertoire de travail, utilisez `meteor create --example leaderboard`, puis démarrer l'application `cd leaderboard && meteor` et ouvrez <http://localhost:3000> dans votre navigateur favori.
 
-L'interface utilisateur est constituée d'une liste de scientifiques triée par score. Cliquez sur un scientifique pour le sélectionner, puis cliquez sur "Give 5 points" pour augmenter le score de ce scientifique. Une application somme toute assez simple que nous pourrions aussi bien développer sans Meteor.
+L'interface utilisateur est constituée d'une liste de scientifiques triée par score. Cliquez sur un scientifique pour le sélectionner, puis cliquez sur « Give 5 points » pour augmenter le score de ce scientifique. Une application somme toute assez simple que nous pourrions aussi bien développer sans Meteor.
 
 Ouvrez maintenant l'application dans une seconde fenêtre de navigateur de manière à garder la première instance visible. Attribuer généreusement quelques points supplémentaires à un scientifique, la seconde vue est automatiquement mise à jour ! Inversement si vous donner des points dans la seconde fenêtre, la première est mise à jour. Autrement dit, la modification locale est envoyée au serveur qui la renvoie à tous les clients connectés. En revanche le scientifique sélectionné (surligné en jaune) est un état local du client, les deux utilisateurs peuvent donc sélectionner deux scientifiques différents simultanément.
 

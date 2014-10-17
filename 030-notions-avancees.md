@@ -1,4 +1,4 @@
-<div style="display:none">\part{Notions avancées}</div>
+# Notions avancées
 
 > « Dans notre effort pour comprendre la réalité, nous ressemblons un peu à un homme qui tente de comprendre le mécanisme d’une montre fermée. Il voit le cadran et les aiguilles, il entend même le tic-tac, mais n’a aucun moyen d’ouvrir le boîtier. » — A. Einstein
 

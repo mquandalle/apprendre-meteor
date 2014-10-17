@@ -66,6 +66,25 @@ XSS
 | `         |           |
 | &         |           |
 
+
+Imaginons un template possédant le symbole `{{titlePage}}` associé à l'helper suivant:
+
+```javascript
+Template.tplName.helpers({
+  titlePage: '<h1>Leaderboard</h1>'
+});
+```
+
+L'effet désiré étant bien entendu d'afficher une balise `<h1>` contenant le titre « Leaderboard ». Ce n'est toutefois pas le résultat obtenu. En effet les balises `<h1>` et `</h1>` s'affichent à l'écran comme du texte et ne sont pas interprétées comme du HTML.
+
+![Tentative d'attaque XSS](img/xss.png)
+
+Ce comportement est une protection contre les attaques [XSS](https://fr.wikipedia.org/wiki/Cross-site_scripting) qui consistent à injecter du code non désiré dans la page de vos visiteurs. Nous détaillerons cette attaque et les pratiques pour s'en prémunir dans le chapitre dédié à la sécurité.
+
+Dans le cas présent, la solution au problème consiste simplement à déplacer les balises `<h1></h1>` dans le template en laissant le texte vidé du code HTML dans l'helper.
+
+Il peut cependant arriver que vous désiriez afficher une variable contenant du code HTML, dans ce cas vous devez utiliser les triples accolades `{{{helperName}}}` qui indiquent à Meteor de ne pas échapper les caractères spéciaux. Garder à l'esprit que le code ainsi affiché pourrait contenir du JavaScript malveillant qui sera alors executé. Soyez donc sûr de l'origine du code que vous affichez de cette manière.
+
 URL sanitization
 
 eval(String.fromCharCode)
@@ -96,6 +115,7 @@ don't try to filter out "javascript:"
 
 strict checking
 
+XXX Démonstration des problèmes de sécurité liés à la non vérification des paramètres, on pourrait croire que c'est mieux que les injections SQL car on utilise un objet JavaScript et non une chaîne de caratères, mais en fait on peut toujours faire des choses comme {$not: "randomId"} pour accéder aux listes privées des autres utilisateurs.
 
 Meteor propose un paquet nommé `check` qui va grandement simplifier nos vérifications. L'utilisation basique s'effectue comme suit :
 

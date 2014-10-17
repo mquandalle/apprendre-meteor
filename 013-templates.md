@@ -1,6 +1,6 @@
 # Les Templates
 
-Comme la plupart des frameworks web, Meteor propose un système de templates (ou vues), afin de séparer le code Javascript (la logique applicative), du code HTML (la présentation). Mais avec Meteor, cette séparation n'est pas uniquement motivée par un souci d'organisation du code. Les templates sont en effet compilés vers une structure abstraite basée sur JavaScript et envoyée au client. Cette structure est utilisée pour mettre à jour l'interface utilisateur en temps réel à chaque fois que l'utilisateur modifie les données localement ou que le serveur lui envoie les modifications d'autres utilisateurs. Elle est donc nécessaire pour gérer la réactivité d'une application mais son écriture étant peu commode, on préfère utiliser un langage de template spécifiquement conçu pour ce besoin.
+Comme la plupart des frameworks web, Meteor propose un système de templates (ou vues), afin de séparer le code JavaScript (la logique applicative), du code HTML (la présentation). Mais avec Meteor, cette séparation n'est pas uniquement motivée par un souci d'organisation du code. Les templates sont en effet compilés vers une structure abstraite basée sur JavaScript et envoyée au client. Cette structure est utilisée pour mettre à jour l'interface utilisateur en temps réel à chaque fois que l'utilisateur modifie les données localement ou que le serveur lui envoie les modifications d'autres utilisateurs. Elle est nécessaire pour gérer la réactivité d'une application mais son écriture étant peu commode, on préfère utiliser un langage de template spécifiquement conçu pour ce besoin.
 
 Il existe plusieurs langages de template, c'est à dire plusieurs syntaxes dont il existe un compilateur capable de construire la structure abstraite envoyée au client. Ce chapitre présente la syntaxe de **Spacebars**, le système par défaut, mais la plupart des concepts présentés ici sont applicables également aux autres syntaxes.
 
@@ -62,7 +62,7 @@ Les templates contiennent enfin des blocs logiques comme `{{#if}}...{{/if}}` ou 
 
 La syntaxe `{{! Mon commentaire }}`, permet d'écrire des commentaires, éventuellement sur plusieurs lignes. Ces commentaires sont retirés par le compilateur et ne sont donc jamais envoyés au client.
 
-Si vous souhaitez écrire un commentaire contenant les caractères `}}` sans mettre au commentaire, vous devez utiliser la syntaxe longue : `{{!-- Ici je peux écrire des {{moustaches}} --}}`.
+Si vous souhaitez écrire un commentaire contenant les caractères `}}` sans mettre fin au commentaire, vous devrez utiliser la syntaxe longue : `{{!-- Cuir Cuir Cuir {{moustache}} --}}`.
 
 Si vous souhaitez que votre commentaire soit envoyé au client et apparaisse dans le DOM, il vous suffit d'utiliser la syntaxe normale en HTML :
 
@@ -75,6 +75,7 @@ Si vous souhaitez que votre commentaire soit envoyé au client et apparaisse dan
 ```html
 <head>
   <title>Leaderboard</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no">
 </head>
 
 <body>
@@ -118,7 +119,7 @@ Ce template utilise le bloc `{{#each players}}` où la variable `player` est une
 
 ### Écrire un template helper
 
-Procédons à notre première modification de l'application leaderboard. Pour l'instant l'incrément de score est codé en dur dans le code JavaScript à la ligne `22`, et dans le template HTML à la ligne `21`. Nous allons stocker cette valeur dans une variable et la transmettre au template via un template helper. Commençons par la définir :
+Procédons à notre première modification de l'application leaderboard. Pour l'instant l'incrément de score est codé en dur dans le code JavaScript à la ligne `25`, et dans le template HTML à la ligne `22`. Nous allons stocker cette valeur dans une variable et la transmettre au template via un template helper. Commençons par la définir :
 
 ```javascript
 var scoreIncrement = 5;
@@ -159,26 +160,6 @@ Sauvegardez les deux fichiers modifiés, puis rendez-vous dans le navigateur pou
 Notez que vous pouvez appeler la méthode `helpers` plusieurs fois pour le même template, les helpers nouvellement définis s'ajouteront simplement à ceux qui l'ont été précédemment.
 
 
-### Sécurité: helpers retournant du code exécutable
-
-Imaginons un template possédant le symbole `{{titlePage}}` associé à l'helper suivant:
-
-```javascript
-Template.tplName.helpers({
-  titlePage: '<h1>Leaderboard</h1>'
-});
-```
-
-L'effet désiré étant bien entendu d'afficher une balise `<h1>` contenant le titre "Leaderboard". Ce n'est toutefois pas le résultat obtenu. En effet les balises `<h1>` et `</h1>` s'affichent à l'écran comme du texte et ne sont pas interprétées comme du HTML.
-
-![Tentative d'attaque XSS](img/xss.png)
-
-Ce comportement est une protection contre les attaques [XSS](https://fr.wikipedia.org/wiki/Cross-site_scripting) qui consistent à injecter du code non désiré dans la page de vos visiteurs. Nous détaillerons cette attaque et les pratiques pour s'en prémunir dans le chapitre dédié à la sécurité.
-
-Dans le cas présent, la solution au problème consiste simplement à déplacer les balises `<h1></h1>` dans le template en laissant le texte vidé du code HTML dans l'helper.
-
-Il peut cependant arriver que vous désiriez afficher une variable contenant du code HTML, dans ce cas vous devez utiliser les triples accolades `{{{helperName}}}` qui indiquent à Meteor de ne pas échapper les caractères spéciaux. Garder à l'esprit que le code ainsi affiché pourrait contenir du JavaScript malveillant qui serait alors executé. Soyez donc sûr de l'origine du code que vous affichez de cette manière.
-
 ## Les blocs logiques
 
 Malgré la séparation du code logique et de sa présentation, il est souvent utile d'utiliser conditions, boucles et autres structures de contrôle du flux directement dans un template.
@@ -204,7 +185,7 @@ Le bloc `{{#unless condition}}` fonctionne comme `if` mais inverse la valeur boo
 > * Le nombre `0`
 > * Le nombre `NaN`
 >
-> Il s'agit d'une liste exclusive, toutes les autres valeurs sont évaluées comme vraies dans une condition.
+> Il s'agit d'une liste exclusive, toutes les autres valeurs sont évaluées comme vraies dans une condition en JavaScript. En plus de ces valeurs, le tableau vide `[]` sera aussi évalué comme faux dans un template, ce qui le comportement désiré.
 
 ### Notation pointée et `with`
 
@@ -313,15 +294,15 @@ Enfin, il est possible de définir un bloc `{{else}}` qui sera affiché si la bo
 
 ### Blocs personnalisés
 
-Meteor propose un certains nombre de blocs logiques par défaut, mais il est tout à fait possible de définir vos propres blocs logiques. Nous étudirons leur création dans le chapitre Meteor UI de la partie avancé.
+Meteor propose un certains nombre de blocs logiques par défaut, mais il est tout à fait possible de définir vos propres blocs logiques. Nous étudirons leur création dans le chapitre « Blaze » de la partie « Notions avancées ».
 
-## Les événements
+## Les évènements
 
-Un événement est une action de l'utilisateur - ou du code client - qui va pouvoir donner lieu à une interactivité. Les événements les plus courants sont le clic, le survol d'une zone ou la validation d'un formulaire.
+Un évènement est une action de l'utilisateur - ou du code client - qui va pouvoir donner lieu à une interactivité. Les évènements les plus courants sont le clic, le survol d'une zone ou la validation d'un formulaire.
 
-Meteor ne révolutionne pas la gestion des événements, et un développeur habitué à utiliser jQuery ne devrait pas être dépaysé outre mesure. La seule spécificité de Meteor est que les événements sont interfacés avec les objets `Template`, et qu'il faut donc utiliser ces objets pour les définir, d'une manière similaire à à la définition d'un templates helper. Mais avant de voir comment écrire un événement dans une application Meteor, je vous propose quelques explications générales sur la gestion des événements dans un navigateur.
+Meteor ne révolutionne pas la gestion des évènements, et un développeur habitué à utiliser jQuery ne devrait pas être dépaysé outre mesure. La seule spécificité de Meteor concerne l’interfaçage des évènements avec les objets `Template`, qu'il faut donc utiliser d'une manière similaire à la définition des templates helpers. Mais avant de voir comment écrire un évènement dans une application Meteor, je vous propose quelques explications générales sur la gestion des évènements dans un navigateur.
 
-### Capture, bouillonnement et délégation d’événement
+### Capture, bouillonnement et délégation d’évènement
 
 Supposons que nous ayons cette structure HTML :
 
@@ -337,35 +318,35 @@ On peut représenter ce code par une arborescence de blocs imbriqués les uns da
 
 ![Le Document Object Model](img/event/dom.png)
 
-Si on définit un événement qui se déclenche au clic sur le lien (la balise `<a>`), on s'attend également à ce qu'il se déclenche lors du clic sur les éléments enfants, ici la balise `<sup>`. De même, si je survole la balise `<sup>`, l’événement doit être remonté aux éléments parents `<a>` et `<div>` que je survole également.
+Si on définit un évènement qui se déclenche au clic sur le lien (la balise `<a>`), on s'attend également à ce qu'il se déclenche lors du clic sur les éléments enfants, ici la balise `<sup>`. De même, si je survole la balise `<sup>`, l’évènement doit être remonté aux éléments parents `<a>` et `<div>` que je survole également.
 
-Historiquement Internet Explorer et Netscape Navigator ont introduit deux stratégies différentes pour permettre à plusieurs éléments imbriqués de répondre à un même événement. Netspace utilisa la "capture" tandis que Internet Explorer choisit le "bouillonnement".
+Historiquement Internet Explorer et Netscape Navigator ont introduit deux stratégies différentes pour permettre à plusieurs éléments imbriqués de répondre à un même évènement. Netspace utilisa la « capture » tandis que Internet Explorer choisit le « bouillonnement ».
 
-Avec la "capture" l’événement est est tout d'abord passé à l'élément le plus englobant puis, successivement, aux éléments internes. Dans notre exemple, cela signifie que le `<div>` reçoit en premier l’événement puis, si l’événement n'est pas capturé il est transmis au `<a>` et enfin au `<sup>`. Au contraire la stratégie dite du "bouillonnement" consiste à transmettre l’événement d'abord à l’élément le plus interne, qui peut éventuellement le modifier, et qui est ensuite remonté aux éléments parents.
+Avec la « capture » l’évènement est d'abord passé à l'élément le plus englobant puis, successivement, aux éléments internes. Dans notre exemple, cela signifie que le `<div>` reçoit en premier l’évènement puis, si l’évènement n'est pas capturé il est transmis au `<a>` et enfin au `<sup>`. Au contraire la stratégie dite du « bouillonnement » consiste à transmettre l’évènement d'abord à l’élément le plus interne, qui peut éventuellement le modifier, et qui est ensuite remonté aux éléments parents.
 
-![Principe de la capture d’événementt](img/event/capture.png)
+![Principe de la capture d’évènementt](img/event/capture.png)
 
 ![Principe du bouillonnementt](img/event/bouillonnement.png)
 
-Le modèle standard établi par le W3C - et aujourd'hui largement répandu - combine les deux stratégies : L’événement descend tout d'abord des éléments les plus englobant vers les plus internes, puis s'il n'a pas été capturé bouillonne dans l'autre sens, de l'élément le plus interne vers l'élément le plus englobant.
+Le modèle standard établi par le W3C - et aujourd'hui largement répandu - combine les deux stratégies : L’évènement descend tout d'abord des éléments les plus englobant vers les plus internes, puis s'il n'a pas été capturé bouillonne dans l'autre sens, de l'élément le plus interne vers l'élément le plus englobant.
 
 ![Le modèle du W3C](img/event/w3c.png)
 
-En pratique on évite de capturer un événement afin de le laisser descendre jusqu'à sa cible la plus interne qui pourra éventuellement le modifier ou l'arrêter.
+En pratique on évite de capturer un évènement afin de le laisser descendre jusqu'à sa cible la plus interne qui pourra éventuellement le modifier ou l'arrêter.
 
-La *délégation d’événement* n'est pas une fonctionnalité du navigateur mais simplement une technique populaire de gestion des événement reposant sur le mécanisme de bouillonnement exposé ci-dessus.
+La *délégation d’évènement* n'est pas une fonctionnalité du navigateur mais simplement une technique populaire de gestion des évènement reposant sur le mécanisme de bouillonnement exposé ci-dessus.
 
-Supposons que nous voulions ajouter une infobulle à toutes les images de la page disposant d'un attribut `data-caption`. Une première solution peut être d'explorer tous les éléments de la page, puis de vérifier si ce sont des images avec l'attribut recherché et le cas échéant ajouter le gestionnaire d'événement. Le problème c'est que le contenu de la page est susceptible d'évoluer et qu'il faudra donc ajouter un nouvel événement à chaque fois qu'une nouvelle image avec un sous-titre est ajouté, et détacher l'événement si l'image est supprimé du document.
+Supposons que nous voulions ajouter une infobulle à toutes les images de la page disposant d'un attribut `data-caption`. Une première solution peut être d'explorer tous les éléments de la page, puis de vérifier si ce sont des images avec l'attribut recherché et le cas échéant ajouter le gestionnaire d'évènement. Le problème c'est que le contenu de la page est susceptible d'évoluer et qu'il faudra donc ajouter un nouvel évènement à chaque fois qu'une nouvelle image avec un sous-titre est ajouté, et détacher l'évènement si l'image est supprimé du document.
 
-L'autre solution, la délégation, consiste à attacher l'événement à la balise `<body>` de la page en bénéficiant du bouillonnement. Le descripteur d'événement contient sa cible `event.currentTarget` qu'il suffira d'analyser pour savoir si l'événement nous intéresse ou pas. Avec cette stratégie on se contente de définir un unique gestionnaire d'événement sur un unique élément HTML ce qui est bien plus simple et plus performant que d'attacher un événement à chaque image de la page.
+L'autre solution, la délégation, consiste à attacher l'évènement à la balise `<body>` de la page en bénéficiant du bouillonnement. Le descripteur d'évènement contient sa cible `event.currentTarget` qu'il suffira d'analyser pour savoir si l'évènement nous intéresse ou pas. Avec cette stratégie on se contente de définir un unique gestionnaire d'évènement sur un unique élément HTML ce qui est bien plus simple et plus performant que d'attacher un évènement à chaque image de la page.
 
-> Il est à noter cependant que certains événements ne bouillonnent pas. C'est le cas par exemple des événements `change`, `submit` et `reset` de l'objet `form` ou des événements `play` et `pause` de l'objet `video`.
+> Il est à noter cependant que certains évènements ne bouillonnent pas. C'est le cas par exemple des évènements `change`, `submit` et `reset` de l'objet `form` ou des évènements `play` et `pause` de l'objet `video`.
 
-Meteor gère automatiquement la délégation d'événement lorsqu'elle est possible. Si vous inspectez les événements dans les outils de débogages du navigateur, l'événement est donc susceptible d'être attaché à une balise parente de la cible que vous avez défini.
+Meteor gère automatiquement la délégation d'évènement lorsqu'elle est possible. Si vous inspectez les évènements dans les outils de débogages du navigateur, l'évènement est donc susceptible d'être attaché à une balise parente de la cible que vous avez défini.
 
-### Définir un événement
+### Définir un évènement
 
-Pour définir un événement il faut utiliser la méthode `events` d'une instance de template. Cette méthode accepte un unique paramètre qui est un dictionnaire des descripteurs d’événements associés au gestionnaire d'événement (la fonction à appeler quand l'événement est enclenché) :
+Pour définir un évènement il faut utiliser la méthode `events` d'une instance de template. Cette méthode accepte un unique paramètre qui est un dictionnaire des descripteurs d’évènements associés au gestionnaire d'évènement (la fonction à appeler quand l'évènement est enclenché) :
 
 ```javascript
 Template.tplName.events({
@@ -374,9 +355,9 @@ Template.tplName.events({
 });
 ```
 
-Il est possibles d'associer deux descripteurs d'événement à la même fonction en les séparant par une virgule : `"event1, event2" : function () { ...}`.
+Il est possibles d'associer deux descripteurs d'évènement à la même fonction en les séparant par une virgule : `"event1, event2" : function () { ...}`.
 
-Pour définir la cible de l’événement, on utilise un sélecteur CSS. Si le sélecteur n'est pas spécifié, l’événement s'applique à tout le template (ce qui équivaut à utiliser le sélecteur `*`).
+Pour définir la cible de l’évènement, on utilise un sélecteur CSS. Si le sélecteur n'est pas spécifié, l’évènement s'applique à tout le template (ce qui équivaut à utiliser le sélecteur `*`).
 
 ```javascript
 {
@@ -388,57 +369,42 @@ Pour définir la cible de l’événement, on utilise un sélecteur CSS. Si le s
 }
 ```
 
-Voici une liste des événements disponibles :
+Tous les évènements supportés par le navigateur peuvent être utilisé de cette manière. Les plus utiles seront :
 
-click, dblclick
-  ~ Un clic -- ou double clic -- sur n'importe quel élément comme un lien, un bouton, un div
+* `click`, `dblclick`, `mouseenter` et `mouseleave` pour la gestion de la souris
+* `keydown`, `keypress` et `keyup` pour la gestion du clavier
+* `change`, `focus` et `submit` pour la gestion des formulaires
 
-mouseenter, mouseleave
-  ~ La souris entre -- ou sort -- d'un élément
+Le comportement natif de certains de ces évènements peut varier selon les navigateurs, en particulier sur les anciennes versions d'Internet Explorer. Meteor utilise le gestionnaire d’évènement de jQuery qui prend soin de s'assurer du fonctionnement uniforme dans tous les navigateurs en rajoutant du code spécifique pour traiter certains cas particuliers.
 
-mousedown, mouseup
-  ~
+### Ajouter et supprimer des joueurs grâce aux évènements
 
-mousemove
-  ~ La souris bouge au dessus de sa cible
+Nous allons agrémenter l'application leaderboard de deux nouvelles fonctionnalité, basées sur les évènements, permettant respectivement d'ajouter et de retirer des joueurs du tableau.
 
-focus, blur
-  ~ Les éléments d'un formulaire peuvent gagner ou perdre le focus.
+[TODO] Faire une capture d'écran de l'appli complétée.
 
-change
-  ~ Correspond au changement d'état d'une *checkbox* ou d'un bouton *radio*. Pour un champ de texte préférez "keyup"/"keydown".
+Commençons par implémenter l'ajout d'un nouveau joueur. On créer à cet effet un formulaire contenant un champ de saisie et un bouton de validation :
 
-keydown, keypress, keyup
-  ~
-
-tap
-  ~ Sur les terminaux tactiles, il s'agit d'un remplaçant à l'événement `click` qui s'active immédiatement. Il existe en effet sur la plupart des navigateurs pour mobile et tablettes un delai de 300ms après un clic pour permettre à l'utilisateur de faire un double clic.
-
-submit, reset
-  ~
-
-Le comportement natif de certains de ces événements peut varier selon les navigateurs, en particulier sur les anciennes versions d'Internet Explorer. Meteor utilise le gestionnaire de jQuery qui prend soin de s'assurer du fonctionnement uniforme dans tous les navigateurs en rajoutant du code spécifique pour traiter certains cas particuliers.
-
-### Ajouter et supprimer des joueurs grâce aux événements
-
-Commençons par implémenter l'ajout d'un nouveau joueur
-
-[TODO] Faire une capture d'écran de l'appli complete
-
-Avec
-
-Liste des évenements...
-
-
-Si l'événement est défini seul, c'est à dire sans spécifier de selecteur CSS,
-
-```javascript
-Template.myTemplate.events({
-  'click button.inc' : function () {
-
-  }
-});
+```html
+<template name="addPlayer">
+  <form>
+    <input type="text" placeholder="Enter my name">
+    <input type="submit" value="Add player">
+  </form>
+</template>
 ```
+
+Template que nous incluons dans le template leaderboard
+
+```html
+<template name="leaderboard">
+  {{> addPlayer}}
+  ...
+</template>
+```
+
+Jusqu'ici rien de nouveau. Il nous faut maintenant utiliser un évènement pour capturer la soumission du formulaire :
+
 ```javascript
 Template.addPlayer.events({
   'submit' : function () {
@@ -447,9 +413,9 @@ Template.addPlayer.events({
 });
 ```
 
-Le log apparait furtivement dans la console, avant que a page ne soit rechargée. Ce comportement est causé par l'utilisation de l’événement `submit` dont le comportement par défaut dans le navigateur est d'initialiser une nouvelle requête HTTP avec les données saisies dans le formulaire.
+Le log apparait furtivement dans la console, avant que a page ne soit rechargée. Ce comportement est causé par l'utilisation de l’évènement `submit` dont le comportement par défaut dans le navigateur est d'initialiser une nouvelle requête HTTP avec les données saisies dans le formulaire.
 
-Nous pouvons modifier ce comportement *via* l'objet événement passé en premier paramètre de notre callback. Cet objet dispose d'une méthode `preventDefault()` qui permet d'annuler le comportement par défaut du navigateur.
+Nous pouvons modifier ce comportement *via* l'objet évènement passé en premier paramètre de notre callback. Cet objet dispose d'une méthode `preventDefault()` qui permet d'annuler le comportement par défaut du navigateur.
 
 ```javascript
 function (event) {
@@ -458,7 +424,7 @@ function (event) {
 }
 ```
 
-Vous avez maintenant tout le temps nécessaire pour contempler le log laissé par notre callback. Il nous faut maintenant récupérer le nom du joueur. On va utiliser la méthode `find` de l'objet `template` passé en deuxième et dernier paramètre à notre callback.
+Vous avez maintenant tout le temps nécessaire pour contempler le log laissé par notre callback. Reste à récupérer le nom du joueur. On va utiliser la méthode `find` de l'objet `template` passé en second et dernier paramètre à notre callback.
 
 ```javascript
 template.find('input');
@@ -471,12 +437,12 @@ Cette méthode nous retourne l'objet HTML demandé, ici le champ de texte. Pour 
 ```javascript
 function (event, template) {
   event.preventDefault();
-  var inputField = template.find('input');
-  console.log('Add a new player : ' + inputField.value);
+  var newPlayerName = template.find('input').value;
+  console.log('Add a new player : ' + newPlayerName);
 }
 ```
 
-> Remarquez qu'avec JavaScript il n'est pas nécessaire que la signature d'une fonction (la liste des paramètres définis dans la déclaration de la fonction) corresponde aux paramètres transmis lors de l'appel à cette fonction. Notre callback reçoit deux paramètres, l'objet événement et l'objet template, mais si vous n'avez pas besoin du deuxième, vous pouvez vous contenter de définir une fonction ne recevant qu'un seul paramètre. Si vous appelez avec deux paramètres une fonction n'en acceptant qu'un seul, le second sera simplement ignoré, sans générer d'erreur.
+> Remarquez qu'avec JavaScript il n'est pas nécessaire que la signature d'une fonction (la liste des paramètres définis dans la déclaration de la fonction) corresponde aux paramètres transmis lors de l'appel à cette fonction. Notre callback reçoit deux paramètres, l'objet évènement et l'objet template, mais si vous n'avez pas besoin du deuxième, vous pouvez vous contenter de définir une fonction ne recevant qu'un seul paramètre. Si vous appelez avec deux paramètres une fonction n'en acceptant qu'un seul, le second sera simplement ignoré, sans générer d'erreur.
 > À noter enfin que dans le corps d'une fonction la variable `arguments` contient la liste ordonnée de tous les paramètres transmis lors de l'appel à la fonction.
 
 L'utilisateur s'attend probablement à ce que nous vidions la zone de saisie une fois le joueur inséré. il suffit pour se faire d'assigner l'attribut `value` de l'input à une chaine vide :
@@ -493,7 +459,7 @@ Template.addPlayer.events({
 });
 ```
 
-L'objectif de ce paragraphe est d'étudier le fonctionnement des événements. Nous verrons ultérieurement comment insérer le nouveau joueur dans la base de données. Pour le moment on se contente de sortir un log avec le nom du nouveau joueur, nous finirons d'implémenter cette fonctionnalité dans le chapitre "Collections".
+L'objectif de ce paragraphe est d'étudier le fonctionnement des évènements. Nous verrons ultérieurement comment insérer le nouveau joueur dans la base de données. Pour le moment on se contente de sortir un log avec le nom du nouveau joueur, nous finirons d'implémenter cette fonctionnalité dans le chapitre sur les collections.
 
 > Dans cette exemple nous avons récupéré et mis à jour notre formulaire à la main, ce qui peut être commode pour un cas d'utilisation simple.
 > Il existe des packages qui vous permettent d'automatiser la gestion de gros formulaires nécessitant de faire appel à des règles de validation des différents champs et d'afficher un retour à l'utilisateur l'invitant à corriger ses erreurs de saisie. Nous étudierons l'un de ces packages plus loin dans ce cours.
@@ -524,7 +490,7 @@ Je vous propose une petite touche de design que vous pouvez évidemment personna
 }
 ```
 
-Reste à écrire l'évenement. Le template player
+Reste à écrire l'évènement pour le template `player`. On utilise simplement l'évènement clic sur le bouton que nous venons de définir.
 
 ```javascript
 Template.player.events({
@@ -535,8 +501,50 @@ Template.player.events({
 });
 ```
 
-----------------------------
+Reste enfin à récupérer le nom du joueur que notre utilisateur souhaite supprimer. Les données transmises par l'intermédiaire des templates helpers sont accessibles via la propriété `data` de l'objet template passé en second paramètre au callback :
 
-La méthode pour transferer des données depuis le code javascript vers le template (avec un template helper) et dans l'autre sens depuis le template vers le code javascript (avec un évement). Cette séparation vous sembler être une solution un peu complexe au problème pourtant appartement simple de transmettre des données à une vue. Néanmoins, vous verrez que dans le chapitre sur la réactivité. Mais pour l'heure, place aux collections !
+```javascript
+Template.player.events({
+  'click': function () { ... },
+  'click button.delete': function (event, template) {
+    var playerName = template.data.name;
+    console.log('Let\'s remove this player : ', playerName);
+  }
+});
+```
+
+Bien que l'évènement fonctionne correctement, son ajout à entrainé un effet de bord. En effet, en cliquant sur le bouton de suppression, on clique également sur la ligne du joueur, et à cause de l'évènement défini juste au dessus, on le sélectionne. Ce comportement pose problème, si on sélectionne un joueur A, puis qu'on supprime un joueur B, l'application doit conserver notre sélection.
+
+La solution à ce problème consiste à stopper le bouillonnement de l'évènement en utilisant sa méthode `stopPropagation`.
+
+```javascript
+Template.player.events({
+  'click': function () { ... },
+  'click button.delete': function (event, template) {
+    event.stopPropagation();
+    var playerName = template.data.name;
+    console.log('Let\'s remove this player : ', playerName);
+  }
+});
+```
+
+@TODO Lien vers Meteorpad
+
+@TODO conclusion
+
+![Relation Contrôleur–Vue](img/controleur-vue.jpg)
+
+---
+
+La méthode pour transférer des données depuis le code javascript vers le template (avec un template helper) et dans l'autre sens depuis le template vers le code javascript (avec un évement). Cette séparation vous sembler être une solution un peu complexe au problème pourtant appartement simple de transmettre des données à une vue. Néanmoins, vous verrez que dans le chapitre sur la réactivité. Mais pour l'heure, place aux collections !
 
 ## Questions
+
+---
+
+Quelle est/Quelles sont les objectifs du système de templates de Meteor ?
+- [x]  Séparer le code logique de la présentation
+- [x]  Écrire du code réactif de manière transparente
+- [ ]
+
+---

@@ -1,4 +1,4 @@
-# Apprendre Meteor (alpha-2) [![Build Status](https://www.gitbook.io/button/status/book/mquandalle/apprendre-meteor)](https://www.gitbook.io/book/mquandalle/apprendre-meteor/activity)
+# Apprendre Meteor (alpha-3) [![Build Status](https://www.gitbook.io/button/status/book/mquandalle/apprendre-meteor)](https://www.gitbook.io/book/mquandalle/apprendre-meteor/activity)
 
 > **Attention :** La rédaction de ce cours n'est pas terminée.
 
@@ -6,8 +6,7 @@ Ce cours en français va vous permettre de découvrir le framework
 [Meteor](https://www.meteor.com/). Vous pouvez accéder à la version PDF
 [ici](https://github.com/mquandalle/apprendre-meteor/releases).
 
-Ce cours est publié sous la license
-[Creative Commons BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/3.0/deed.fr).
+Ce cours est publié sous la license [Creative Commons BY-NC-SA](LICENSE).
 
 ## Pré-requis
 

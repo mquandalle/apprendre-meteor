@@ -164,16 +164,27 @@ Enfin, il arrive parfois que vous souhaitiez une libraire externe à votre appli
 
 ## Ordre des fichiers
 
-L'écriture de votre application en utilisant un paradigme déclaratif devrait la rendre peu dépendante à l'ordre dans lequel les fichiers sont chargés.
+L'utilisant d'un paradigme déclaratif devrait rendre votre application peu dépendante à l'ordre dans lequel les fichiers sont chargés. Néanmoins il est difficile d'échapper à un certain nombre de situations où cet ordre entre en jeu. Meteor utilise des règles assez rigides pour déterminer dans quel ordre il charge les fichiers. Les deux principales règles sont :
 
-
-
-* Les fichiers présents dans un sous répertoire sont chargés avant ceux du répertoire parent. Cela signifie que les fichiers les plus profonds dans l’arborescence sont chargés en premiers, et que les fichier à la racine de l'application sont chargés en dernier.
+* Les fichiers présents dans un sous-répertoire sont chargés avant ceux du répertoire parent. Cela signifie que les fichiers les plus profonds dans l’arborescence sont chargés en premiers, et que les fichier à la racine de l'application sont chargés en dernier
 * À profondeur équivalente, à l'intérieur d'un même répertoire, les fichiers sont chargés par ordre alphabétique.
 
-XXX `lib` avant le reste pour les libraires tierces
+À l'heure actuelle il n'est pas possible de personnaliser ces règles. Il s'agit toutefois d'une fonctionnalité demandée par la communauté qui devrait arriver dans une prochaine version.
 
-Par ailleurs si deux actions doivent êtres effectuées l'une après l'autre vous devriez les appeler depuis le même fichier, ce qui permet de s'assurer que l'ordre d’exécution sera respecté (au lieu de placer dans des fichiers différents et de vous reposer sur l'ordre alphabétique). Il existe une dernière exception au chargement des fichiers par ordre alphabétique dans un même répertoire : un fichier nommé `main.js`, ou plus généralement `main.*` sera chargé en dernier. Si deux fonctions globales `actionA` et `actionB` définies respectivement dans les fichiers `fileA.js` et `fileB.js` doivent être appelées dans cet ordre on créera un fichier `main.js` comme suit :
+Il existe une exception bien utile pour le répertoire `lib` dont les fichiers sont chargés avant les autres. Il pourra contenir des librairies dont votre application dépend et qui doivent être chargées avant le reste de l'application, par exemple pour un plugin jquery côté client :
+
+```
+├── client
+│   ├── fileusingdatetimepicker.js
+│   ├── lib
+│   │   └── jquery.datetimepicker.js
+│   └── view.html
+└── server
+```
+
+Ici le fichier `fileusingdatetimepicker.js` pourra utiliser les fonctions définies dans le plugin `jquery.datetimepicker.js`.
+
+Par ailleurs si deux actions doivent êtres effectuées l'une après l'autre vous devriez les appeler depuis le même fichier, ce qui permet de s'assurer que l'ordre d’exécution sera respecté (au lieu de placer dans des fichiers différents et de vous reposer sur l'ordre alphabétique). Il existe une unique exception au chargement des fichiers par ordre alphabétique dans un même répertoire : un fichier nommé `main.js`, ou plus généralement `main.*` sera chargé en dernier. Si deux fonctions globales `actionA` et `actionB` définies respectivement dans les fichiers `fileA.js` et `fileB.js` doivent être appelées dans cet ordre on créera un fichier `main.js` comme suit :
 
 ```javascript
 actionA();
@@ -188,20 +199,47 @@ Et au l'enregistrera dans le même répertoire que les deux fichiers précédent
 └── main.js
 ```
 
-À l'heure actuelle il n'est pas possible de personnaliser ces règles. C'est toutefois une fonctionnalité demandée par la communauté et qui devrait arriver dans une prochaine version.
+## En pratique
 
-Par ailleurs si une portion de code nécessite que l'application soit chargée vous devriez l'envelopper dans une fonction passée en paramètre `Meteor.startup` :
+Bien que le règles présentées ci-dessus puissent vous sembler nombreuses et contraignantes, il n'en ait rien, et à l'usage découvrirez une très grande flexibilité quant à l'organisation de vos applications. D'où la nécessité de mettre en place des conventions plus restrictives pour s'assurer un certain ordre.
 
-```javascript
-if (Meteor.isClient) {
-  Meteor.startup(function() {
+On dénombre aux moins deux écoles en la matière. La première consiste à imposer une organisation dès le début, et à s'y tenir tout au long du développement. C'est l'approche retenue par la plupart des frameworks web tels que Symfony, Rails, ou encore Django. La contrepartie à l'assurance d'organisation que cette méthode garantie, c'est la difficulté à itérer des expérimentations rapidement, car ajouter et retirer des fonctionnalités nécessite systématiquement la modification de nombreux fichiers bien séparés et au rôle bien définis. Cette difficulté à itérer rapidement est en général amoindrie par l'utilisation d'outil en ligne de commande pour générer automatiquement du code, outils dit de *scalfolding*. L'autre approche consiste à ne se préoccuper de l'organisation du code qu'après expérimentation. Cela permet de créer des nouvelles fonctionnalités quitte à placer tout le code, client comme serveur, dans un unique fichier, et de ne réorganiser le code qu'une fois sûr du découpage à adopter.
 
-  });
-}
+Les développeurs Meteor pourront utiliser les deux approches. La seconde approche se traduira par l'utilisation d'un fichier unique `nomDeLaNouvelleFonction.js` à la racine du projet qui permettra de faire des expérimentations facilement. La première sera utile dès que l'on aura une idée précise de l'organisation à adopter. Les développeurs chevronnés n'auront pas systématiquement besoin d'en passer par une phase d'experimentation, et pourront développer et organiser le code en parallèle.
+
+Les règles décrient dans les sections précédentes tendent naturellement à favoriser l'utilisation des répertoires particuliers comme des répertoires parents placés à la racine de l'application :
+
+```
+├── client
+│   ├── fonctionA.css
+│   ├── fonctionA.html
+│   ├── fonctionA.js
+│   ├── fonctionB.css
+│   ├── fonctionB.html
+│   └── fonctionB.js
+├── lib
+│   ├── collections.js
+│   ├── methods.js
+│   └── routes.js
+├── private
+├── public
+├── server
+│   ├── fonctionA.js
+│   └── authorisations.js
+└── tests
 ```
 
-## Proposition de conventions
+La première convention respectée dans cet exemple est de donner un même nom aux fichiers qui fonctionnent ensemble, ainsi on placera les template helpers et les évènements des templates définis dans le fichier `fonctionA.html` dans un fichier `fonctionA.js`. C'est une convention qu'il est recommandé de suivre car elle facilite grandement la recherche du code JavaScript et CSS associé à une vue.
 
-En fait, il y a pas beaucoup de règles. Une fois que vous les maitriserez, la construction de l'application sera complètement automatisé.
+Certains développeurs poussent l'idée plus loin et recommandent de ne définir qu'un seul template par fichier `html`. Cette convention est par exemple respectée par l'application `todos` que nous étudirons dès le prochain chapitre. Aussi on definira le template `<head>` dans un fichier `head.html` et le template `<body>` dans un fichier `body.html`. Cette convention ne semble par faire l'objet d'un consensus absolu, certains developpeurs considerant qu'il est préférable de définir plusieurs templates liés dans un même fichier, à vous de voir donc si vous souhaitez également suivre cette convention strictement, ou si cela fait sens de regrouper plusieurs templates dans le même fichier. Quoi qu'il en soit vous ne devirez pas définir plus de trois ou quatre templtes au sein d'un même fichier.
 
-Notez que les répertoires `client` et `server` peuvent être des sous répertoires, ce qui permet d'organiser son projet avec des modules de premier niveau, par exemple `/blog` et `/forum` à l'intérieur desquelles se trouvent les répertoire `client` et `server`.
+Votre application s'organisera probablement autour de plusieurs fonctionnalités telles qu'un blog ou un forum. Une manière de bien organiser la séparation de ces différentes fonctionnalités est de les définir dans des répertoires distincts, en s'appuyant sur le fait que les répertoires `client` et `server` peuvent être des sous répertoires :
+
+```
+
+```
+
+Enfin, notez que si vous développez une fonctionnalité assez générique pour être réutilisée dans plusieurs application (un système de commentaires, un système d'avatar...) il convient de la déplacer dans un paquet indépendant assurant ainsi un cloisonement des espaces de noms. Un chapitre de la partie « Notions avancées » est consacrée à la création d'un paquet.
+
+---
+
