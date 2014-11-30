@@ -17,16 +17,6 @@ HTML, CSS, JavaScript
 Les contributions sont les bienvenues via les *Pull Requests* sur Github.
 Vous pouvez également me contacter par mail à <maxime@quandalle.com>.
 
-### Générer un pdf
-
-J'utilise [pandoc](http://johnmacfarlane.net/pandoc/) pour convertir les
-fichiers markdown source en PDF :
-
-```bash
-$ sudo apt-get install pandoc texlive-lang-french
-$ pandoc -S --chapters --table-of-contents --latex-engine=xelatex -V lang=french -o meteor.pdf 0*.md
-```
-
 ### Générer un livre web
 
 J'utilise [gitbook](https://www.gitbook.io/) pour générer un livre web :
@@ -35,3 +25,7 @@ J'utilise [gitbook](https://www.gitbook.io/) pour générer un livre web :
 $ npm install -g gitbook
 $ gitbook serve
 ```
+
+### TODO
+
+* Utiliser `asciidoc` au lieu du `markdown` lorsque cela sera supporté par gitbook

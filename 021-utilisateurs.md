@@ -1,4 +1,4 @@
-  # Accueillons nos utilisateurs
+# Accueillons nos utilisateurs
 
 Dans le « monde réel » nous ne voulons pas laisser tous le monde lire et modifier les données de l'application que ce fut le cas pour le leaderboard et le chat de la première partie. Notre application a besoin d'un système d'utilisateurs offrant les fonctionnalités classiques : inscription, connexion, oubli du mot de passe, connexion avec les « réseaux sociaux », etc. Cette gestion d'utilisateur est une tâche absolument récurrente des applications web, et on ose à peine imaginer son nombre d’implémentations et de ré-implémentations. Rassurez-vous, dans ce chapitre nous n'allons pas réinventez la roue une nouvelle fois. Meteor propose en effet un ensemble de paquets qui permettent de mettre en place un système d’utilisateurs d'une manière particulièrement simple pour le développeur, voyez plutôt.
 

@@ -1,5 +1,9 @@
 # Excursus : outils de développement
 
+Ce chapitre est un *pot pourit* d'outils qui s'avereront utiles lors du développement d'applications Meteor. Aucun de ces outils n'est nécessaire, meteor fonctionne sans aucune dépendance et en particulier le mécanisme de construction de l'application est directement intégré à l'utilitaire en ligne de commande et ne nécessite pas d'utiliser un outil tiers du type `grunt`.
+
+Libre à vous d'explorer le fonctionnement de ces différents outils avant d'entammer le TP qui cloturerat cette première partie.
+
 ## Gestion de version
 
 Meteor ne vous impose, ni n'impose aux auteurs de paquets, aucun logiciel de gestion des sources en particulier. Néanmoins, une écrasante majorité de sa communauté utilise `git`.

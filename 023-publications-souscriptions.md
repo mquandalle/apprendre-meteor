@@ -2,7 +2,6 @@
 
 Lors du chapitre sur les collections nous avons défini des règles de sécurité pour restreindre l'écriture sur la base de donnée d'une application Meteor. Mais pour le moment tous les utilisateurs conservent un accès en lecture à toutes les données de l'application. Remédions-y dans ce chapitre.
 
-
 ## Concept
 
 Une application web peut traiter des volumes de données gigantesques, parmi lesquelles se trouvent notamment des informations privées. La base de données Minimongo exécutée côté client ne peut donc pas être une simple copie conforme de la base de donnée réelle côté serveur. Au contraire elle doit contenir un sous-ensemble de documents, à la fois pour des raisons de performances et de sécurité des données.
@@ -100,7 +99,7 @@ if (Meteor.isClient) {
 	});
 }
 
-La souscription est située dans un contexte réactif `Tracker.autorun`. La modification de la variable de session (par exemple si l'utilisateur consulte l'article suivant) entraîne une ré-exécution du code et donc l'initialisation d'une nouvelle souscription. Mais mieux encore, Meteor va automatiquement stopper la souscription précédente (avec la méthode `.stop()` vue précédemment), de sorte que ce simple code est suffisant pour récupérer automatiquement les données dont on a besoin et oublier celles dont ont a plus l'utilité.
+La souscription est située dans un contexte réactif `Tracker.autorun`. La modification de la variable de session (par exemple si l'utilisateur consulte l'article suivant) entraîne une ré-exécution du code et donc l'initialisation d'une nouvelle souscription. Mais mieux encore, Meteor va automatiquement stopper la souscription précédente (avec la méthode `.stop()` vue précédemment), de sorte que ce simple code est suffisant pour récupérer automatiquement les données dont on a besoin et oublier celles dont on n'a plus l'utilité.
 
 ## Présentation de `todos`
 
@@ -114,15 +113,37 @@ $ meteor
 
 XXX capture d'écran de l'application todos par défaut
 
-XXX présentation de l'application, des conventions réspectées
+L'application permet de créer et de gérer des listes de tâches. Par défaut trois listes sont instianciées et l'on choisir la liste courante en cliquant sur son nom dans le menu de gauche. Dans le volet de droite un clic sur s'importe quel texte permet de l'éditer. Les fonctions classiques d'ajout et de suppression d'élements fonctionnent comme attendu. Ces trois listes sont des listes « publiques » que tout le monde peut voir et modifier. Il est aussi possible de créer des listes « privées » en se connectant avec un compte utilisateur.
 
-### Partageons nos listes de choses à faire
+XXX Capture d'écran du formulaire d'inscription
 
-En application au système de souscription publication présenté dans ce chapitre nous allons implémenter une nouvelle fonctionnalité à l'application todos. Nous allons ajouter un système de partage, permettant à plusieurs utilisateurs d'utiliser la même liste privée.
+Vous remarquez que le formulaire qui est utilisé dans cette application n'est pas le widget `accounts-ui` que nous avons vu précédemment mais un formulaire ré-implementé pour les besoins ergonomiques de l'application. La ré-implémentation concerne uniquement le formulaire de saise, le système d'utilisateur utilisé est bien celui que nous avons étudié précédemment. On retrouve parmi les autres conventions suivies par le code source de cette application la séparation du code client et serveur dans deux répertoires distincts, le placement des ressources dans le répertoire `public`, l'utilisation d'un fichier distinct pour définir chaque template, ou encore l'utilisation du même nom de fichier pour les fichiers `html` et `js` correspondants.
 
-XXX présentation de $addtoset, $emovefromset, adaptés à ce cas
+Comme pour l'application leaderboard, nous allons ajouter des nouvelles fonctionnalités à `todos` au cours des prochains chapitres.
 
-XXX juste la souscription/publication
+### Partage des listes privées
+
+Les listes privées ont un « propriétaire », *owner* en anglais, qui est le seul utilisateur qui peut y accéder. Nous allons ajouter la possibilité de « partager » les listes privées, c'est à dire les rendre accessible en lecture et en écriture à d'autres utilisateurs que son propriétaire.
+
+L'interface utilisateur sera implémentée dans le prochain chapitre consacré aux « Méthodes », ici on se contente d'utiliser le système de publication-souscription pour donner accès à la liste aux amis de son propriétaire. Pour se faire, il vous faudra utiliser un outil pour modifier la base de donnée de votre application (par exemple l'application visuelle robomongo ou l'utilitaire en ligne de commande `meteor mongo`, tout deux présentés dans l'excursus consacré aux outils de développement).
+
+XXX code pour créer deux utilisateurs userA-userA@localhost-passA, userB-passB
+
+On ajoute dans le modèle un champ `friends` qui contiendra une liste des identifiants des utilisateurs aillant accès à cette liste.
+
+```javascript
+Meteor.publish('friendsList', function() {
+  if (this.userId) {
+    return Lists.find({friends: this.userId});
+  } else {
+    this.ready();
+  }
+});
+```
+
+## DDP
+
+
 
 ## Mergebox
 

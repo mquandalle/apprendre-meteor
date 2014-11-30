@@ -4,9 +4,9 @@ Pour avoir du succès, un *framework* - ou plus généralement une *plateforme* 
 
 Dans ce chapitre nous allons apprendre à ajouter et supprimer des paquets à votre application, puis nous verrons plus en détail les fonctionnalités offertes par certains paquets en particulier et les décisions de conception sous-jacentes au système de paquet de Meteor.
 
-## Présentation du système de paquets
+## Présentation du gestionnaire de paquets
 
-Les packages sont des briques élémentaires apportant des fonctionnalités à une application Meteor. En fait, toutes les fonctionnalités de Meteor sont implémentés dans des packages. Par exemple l'objet `Session` est implémenté dans un package `session`. Les packages peuvent dépendre d'autres packages. Comme nous l'avons vu au chapitre précédent le package `session` dépend du package `tracker` qui permet de construire une source réactive.
+Les paquets sont des briques élémentaires apportant des fonctionnalités à une application Meteor. En fait, toutes les fonctionnalités de Meteor sont implémentés dans des paquet. Par exemple l'objet `Session` est implémenté dans un package `session`. Les packages peuvent dépendre d'autres packages. Comme nous l'avons vu au chapitre précédent le package `session` dépend du package `tracker` qui permet de construire une source réactive.
 
 Pour ajouter un package utilisez la commande :
 
@@ -269,7 +269,7 @@ Mais l'utilitaire en ligne de commande n'est probablement pas l'outil le plus ad
 
 ## Atmosphere, le dépôt des paquets publics
 
-Atmosphère est un projet développé par [Percolate Studio](http://www.percolatestudio.com/) dont l'objectif initial était le support des paquets communautaire à l'heure ou Meteor ne le permettait pas encore. Depuis Atmosphère a fusionner avec le dépôt officiel et propose maintenant une interface visuelle pour la recherche et la découverte des paquets.
+Atmosphère est un projet développé par [Percolate Studio](http://www.percolatestudio.com/) dont l'objectif initial était le support des paquets communautaires à l'heure ou Meteor ne le permettait pas encore. Depuis Atmosphère a fusionné avec le dépôt officiel et propose maintenant une interface visuelle pour la recherche et la découverte des paquets.
 
 ![Atmosphère](img/atmosphere.png)
 

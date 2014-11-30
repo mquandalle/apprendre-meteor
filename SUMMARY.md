@@ -21,7 +21,7 @@
    * [Excursus: tests](027-tests.md)
    * [Applications mobiles et hors ligne](028-mobiles.md)
 * [Notions avancées](030-notions-avancees.md)
-   * Boucle évènementielle
+   * Boucle évènementielle (+ fibers)
    * Mise à l’échelle
    * DDP (+ EJSON)
    * Blaze

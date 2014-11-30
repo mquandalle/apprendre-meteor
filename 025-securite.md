@@ -6,7 +6,7 @@ Ce chapitre concentre l'intégralité des éléments relatif à la sécurité de
 
 ## Principes de conception
 
-S'il ne devait y avoir qu'un seul principe de sécurité à retenir, ce serait celui-ci : ne faire confiance à personne d'autre qu'à soit même. Un principe général valable pour toutes les applications distribuées. Dans le cas particulier d'une application client serveur, nous transcrivons ainsi : le serveur ne doit jamais faire confiance au client. Ce dernier peut tout à fait modifier le code qu'il exécute, soit facilement avec les outils de débogage du navigateur, mais plus généralement en « fabriquant » ses propres requêtes à partir de rien.
+S'il ne devait y avoir qu'un seul principe de sécurité à retenir, ce serait celui-ci : ne faire confiance à personne d'autre qu'à soit même. Un principe général valable pour toutes les applications distribuées. Dans le cas particulier d'une application client serveur, nous le transcrivons ainsi : le serveur ne doit jamais faire confiance au client. Ce dernier peut tout à fait modifier le code qu'il exécute, soit facilement avec les outils de débogage du navigateur, mais plus généralement en « fabriquant » ses propres requêtes à partir de rien.
 
 Par exemple, si votre application web propose un formulaire contenant le formulaire suivant :
 
@@ -20,7 +20,7 @@ Par exemple, si votre application web propose un formulaire contenant le formula
 </form>
 ```
 
-Ce formulaire contient un unique champ `mark` qui peut prendre uniquement trois valeur possible : `A`, `B`, ou `C`. La valeur choisie est transmise au serveur via une requête `HTTP POST`. Mais un client malveillant peut tout à fait construire “manuellement” une requête HTTP dont le champ `mark` possède une valeur différente de celle proposées par le formulaire. Le serveur devra donc systématiquement vérifier (“sanitize”) l'entrée du client et ne pas supposer que la valeur est forcement l'une des trois proposer par le serveur.
+Ce formulaire contient un unique champ `mark` qui peut prendre uniquement trois valeur possible : `A`, `B`, ou `C`. La valeur choisie est transmise au serveur via une requête `HTTP POST`. Mais un client malveillant peut tout à fait construire “manuellement” une requête HTTP dont le champ `mark` possède une valeur différente de celle proposées par le formulaire. Le serveur devra donc systématiquement vérifier (“sanitize”) l'entrée du client et ne pas supposer que la valeur est forcement l'une des trois proposées par le serveur.
 
 L'application de ce principe général est facilité par certaines décisions architecturales de Meteor. En particulier la stricte séparation du code de l'applciation d'une part, et des données d'autre part. Comme présenté au chapitre précédent le code de l'application est servi via une requête HTTP, tandis que les données sont transmises sur le protocole DDP. Réduit la confusion qui existe naturellement. La proposention par exemple à évaluer du code fourni par DDP
 

@@ -58,6 +58,8 @@ Il faut d'abord situer Meteor par rapport à toutes ces technologies éparses. M
 
 Et puis il y a les autres technologies, celles que j'ai citées plus haut. Il faut comprendre que ces librairies ne remplissent pas le même rôle que Meteor. Il est en fait possible d'intégrer la plupart de ces technologies dans l'écosystème Meteor. Cette intégration se réalise via le système de paquets, qui permet d'ajouter ou de remplacer des briques logicielles de votre application. S'il est effectivement possible d'intégrer ces technologies externes à Meteor, je vous recommande vivement d'attendre d'avoir une compréhension fine de Meteor avant d'en changer les composants fournis par défaut.
 
+> XXX ajouter les cas pour lesquels Meteor ne convient pas: mysql, ssr, windows. ces fonctionnalités sont sur la roadmap+lien. meteor plateforme généraliste, et aspire à répondre aux besoins de la majortié des applications
+
 ## Ressources utiles
 
 Parallèlement à la lecture de cet ouvrage, si vous souhaitez poser une question ou approfondir un sujet en particulier, vous pouvez bénéficier de l'écosystème prolifique de Meteor :
